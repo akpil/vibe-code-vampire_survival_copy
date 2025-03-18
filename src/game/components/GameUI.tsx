@@ -10,7 +10,7 @@ export const GameUI = () => {
   const [gameOver, setGameOver] = useState(false);
   
   useEffect(() => {
-    // 게임 이벤트 구독
+    // ê²ì ì´ë²¤í¸ êµ¬ë
     const healthListener = gameEvents.on('health-changed', (newHealth: number) => {
       setHealth(newHealth);
       if (newHealth <= 0) {
@@ -38,7 +38,7 @@ export const GameUI = () => {
       setGameOver(true);
     });
     
-    // 컴포넌트 언마운트 시 이벤트 리스너 정리
+    // ì»´í¬ëí¸ ì¸ë§ì´í¸ ì ì´ë²¤í¸ ë¦¬ì¤ë ì ë¦¬
     return () => {
       healthListener.destroy();
       levelListener.destroy();
@@ -49,7 +49,7 @@ export const GameUI = () => {
     };
   }, []);
   
-  // 게임 재시작
+  // ê²ì ì¬ìì
   const handleRestart = () => {
     setGameOver(false);
     setHealth(100);
@@ -58,14 +58,14 @@ export const GameUI = () => {
     setKills(0);
     setGameTime(0);
     
-    // 게임 재시작 이벤트 발생
+    // ê²ì ì¬ìì ì´ë²¤í¸ ë°ì
     gameEvents.emit('restart-game');
     
-    // 페이지 새로고침 (간단한 방법)
+    // íì´ì§ ìë¡ê³ ì¹¨ (ê°ë¨í ë°©ë²)
     window.location.reload();
   };
   
-  // 시간 포맷팅 (mm:ss)
+  // ìê° í¬ë§·í (mm:ss)
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
@@ -74,10 +74,10 @@ export const GameUI = () => {
   
   return (
     <div className="game-ui">
-      {/* 상태 표시 UI */}
+      {/* ìí íì UI */}
       <div className="stats-container">
         <div className="stat">
-          <div className="stat-label">체력</div>
+          <div className="stat-label">ì²´ë ¥</div>
           <div className="health-bar">
             <div 
               className="health-fill" 
@@ -87,7 +87,7 @@ export const GameUI = () => {
         </div>
         <boltAction type="file" filePath="src/game/components/GameUI.tsx">
         <div className="stat">
-          <div className="stat-label">레벨 {level}</div>
+          <div className="stat-label">ë ë²¨ {level}</div>
           <div className="xp-bar">
             <div 
               className="xp-fill" 
@@ -97,23 +97,23 @@ export const GameUI = () => {
         </div>
         
         <div className="stat">
-          <div className="stat-label">처치: {kills}</div>
+          <div className="stat-label">ì²ì¹: {kills}</div>
         </div>
         
         <div className="stat">
-          <div className="stat-label">시간: {formatTime(gameTime)}</div>
+          <div className="stat-label">ìê°: {formatTime(gameTime)}</div>
         </div>
       </div>
       
-      {/* 게임 오버 화면 */}
+      {/* ê²ì ì¤ë² íë©´ */}
       {gameOver && (
         <div className="game-over-container">
           <div className="game-over-panel">
-            <h2>게임 오버</h2>
-            <p>생존 시간: {formatTime(gameTime)}</p>
-            <p>처치 수: {kills}</p>
-            <p>최종 레벨: {level}</p>
-            <button onClick={handleRestart}>다시 시작</button>
+            <h2>ê²ì ì¤ë²</h2>
+            <p>ìì¡´ ìê°: {formatTime(gameTime)}</p>
+            <p>ì²ì¹ ì: {kills}</p>
+            <p>ìµì¢ ë ë²¨: {level}</p>
+            <button onClick={handleRestart}>ë¤ì ìì</button>
           </div>
         </div>
       )}

@@ -403,7 +403,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.weapons.forEach(weapon => {
       if (time - weapon.lastFired >= weapon.cooldown) {
         weapon.lastFired = time;
-        
         switch (weapon.type) {
           case 'knife':
             this.fireKnife(weaponsGroup, weapon.level);

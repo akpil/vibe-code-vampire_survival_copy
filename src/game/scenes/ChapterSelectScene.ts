@@ -9,25 +9,25 @@ export class ChapterSelectScene extends Phaser.Scene {
   }
 
   preload() {
-    // 챕터 썸네일 이미지 로드
+    // ì±í° ì¸ë¤ì¼ ì´ë¯¸ì§ ë¡ë
     this.load.image('chapter-1', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/ui/thumbnail_chapter/chapter_01.png');
     this.load.image('chapter-2', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/ui/thumbnail_chapter/chapter_02.png');
     this.load.image('chapter-3', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/ui/thumbnail_chapter/chapter_03.png');
   }
 
   create() {
-    // 씬 변경 이벤트 발생
+    // ì¬ ë³ê²½ ì´ë²¤í¸ ë°ì
     gameEvents.emit('scene-changed', SceneKeys.CHAPTER_SELECT);
     
-    // 배경 설정
+    // ë°°ê²½ ì¤ì 
     const bg = this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0x000033);
     bg.setOrigin(0, 0);
     
-    // 타이틀 텍스트
+    // íì´í íì¤í¸
     const titleText = this.add.text(
       this.cameras.main.centerX,
       this.cameras.main.height * 0.15,
-      '챕터 선택',
+      'ì±í° ì í',
       {
         fontFamily: 'Arial',
         fontSize: '48px',
@@ -38,14 +38,14 @@ export class ChapterSelectScene extends Phaser.Scene {
     );
     titleText.setOrigin(0.5);
     
-    // 챕터 버튼 생성 - 프리뷰 이미지 포함
+    // ì±í° ë²í¼ ìì± - íë¦¬ë·° ì´ë¯¸ì§ í¬í¨
     this.createChapterCard(
       this.cameras.main.centerX - 250,
       this.cameras.main.centerY,
       'chapter-1',
-      '챕터 1',
-      '초급',
-      '기본 난이도의 적들과 싸우세요.',
+      'ì±í° 1',
+      'ì´ê¸',
+      'ê¸°ë³¸ ëì´ëì ì ë¤ê³¼ ì¸ì°ì¸ì.',
       1
     );
     
@@ -53,9 +53,9 @@ export class ChapterSelectScene extends Phaser.Scene {
       this.cameras.main.centerX,
       this.cameras.main.centerY,
       'chapter-2',
-      '챕터 2',
-      '중급',
-      '더 많은 적들이 등장합니다.',
+      'ì±í° 2',
+      'ì¤ê¸',
+      'ë ë§ì ì ë¤ì´ ë±ì¥í©ëë¤.',
       2
     );
     
@@ -63,19 +63,19 @@ export class ChapterSelectScene extends Phaser.Scene {
       this.cameras.main.centerX + 250,
       this.cameras.main.centerY,
       'chapter-3',
-      '챕터 3',
-      '고급',
-      '강력한 보스와 맞서 싸우세요.',
+      'ì±í° 3',
+      'ê³ ê¸',
+      'ê°ë ¥í ë³´ì¤ì ë§ì ì¸ì°ì¸ì.',
       3
     );
     
-    // 뒤로 가기 버튼 - ButtonFactory 사용
+    // ë¤ë¡ ê°ê¸° ë²í¼ - ButtonFactory ì¬ì©
     ButtonFactory.createButton(
       this,
       100,
       this.cameras.main.height - 50,
       'btn-red',
-      '뒤로',
+      'ë¤ë¡',
       () => {
         this.scene.start(SceneKeys.TITLE);
       },
@@ -85,16 +85,16 @@ export class ChapterSelectScene extends Phaser.Scene {
   }
   
   createChapterCard(x: number, y: number, imageKey: string, title: string, difficulty: string, description: string, chapterNumber: number) {
-    // 프레임 배경
+    // íë ì ë°°ê²½
     const frame = this.add.image(x, y, 'frame');
     frame.setDisplaySize(200, 280);
     frame.setTint(0x888888);
     
-    // 챕터 썸네일 이미지
+    // ì±í° ì¸ë¤ì¼ ì´ë¯¸ì§
     const thumbnail = this.add.image(x, y - 50, imageKey);
     thumbnail.setDisplaySize(180, 120);
     
-    // 챕터 제목
+    // ì±í° ì ëª©
     const titleText = this.add.text(
       x,
       y + 30,
@@ -109,7 +109,7 @@ export class ChapterSelectScene extends Phaser.Scene {
     );
     titleText.setOrigin(0.5);
     
-    // 난이도 표시
+    // ëì´ë íì
     const difficultyText = this.add.text(
       x,
       y + 60,
@@ -122,7 +122,7 @@ export class ChapterSelectScene extends Phaser.Scene {
     );
     difficultyText.setOrigin(0.5);
     
-    // 설명 텍스트
+    // ì¤ëª íì¤í¸
     const descText = this.add.text(
       x,
       y + 90,
@@ -137,15 +137,15 @@ export class ChapterSelectScene extends Phaser.Scene {
     );
     descText.setOrigin(0.5);
     
-    // 선택 버튼
+    // ì í ë²í¼
     const selectButton = ButtonFactory.createButton(
       this,
       x,
       y + 130,
       'btn-blue',
-      '선택',
+      'ì í',
       () => {
-        // 캐릭터 선택 화면으로 이동하면서 선택한 챕터 정보 전달
+        // ìºë¦­í° ì í íë©´ì¼ë¡ ì´ëíë©´ì ì íí ì±í° ì ë³´ ì ë¬
         this.scene.start(SceneKeys.CHARACTER_SELECT, { chapter: chapterNumber });
       },
       120,
@@ -153,14 +153,14 @@ export class ChapterSelectScene extends Phaser.Scene {
       '16px'
     );
     
-    // 전체 카드를 인터랙티브하게 만들기
+    // ì ì²´ ì¹´ëë¥¼ ì¸í°ëí°ë¸íê² ë§ë¤ê¸°
     frame.setInteractive({ useHandCursor: true });
     frame.on('pointerdown', () => {
-      // 캐릭터 선택 화면으로 이동하면서 선택한 챕터 정보 전달
+      // ìºë¦­í° ì í íë©´ì¼ë¡ ì´ëíë©´ì ì íí ì±í° ì ë³´ ì ë¬
       this.scene.start(SceneKeys.CHARACTER_SELECT, { chapter: chapterNumber });
     });
     
-    // 호버 효과
+    // í¸ë² í¨ê³¼
     frame.on('pointerover', () => {
       frame.setTint(0xaaaaaa);
     });

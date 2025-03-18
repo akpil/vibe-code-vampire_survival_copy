@@ -1,22 +1,22 @@
 import Phaser from 'phaser';
 
 /**
- * 게임 전체에서 재사용 가능한 버튼 생성 유틸리티
+ * ê²ì ì ì²´ìì ì¬ì¬ì© ê°ë¥í ë²í¼ ìì± ì í¸ë¦¬í°
  */
 export class ButtonFactory {
   /**
-   * 일관된 스타일의 버튼을 생성합니다
-   * @param scene 버튼을 생성할 씬
-   * @param x 버튼의 x 좌표
-   * @param y 버튼의 y 좌표
-   * @param imageKey 버튼 배경 이미지 키
-   * @param text 버튼에 표시할 텍스트
-   * @param onClick 버튼 클릭 시 실행할 콜백 함수
-   * @param width 버튼 너비 (픽셀)
-   * @param height 버튼 높이 (픽셀)
-   * @param fontSize 버튼 텍스트 크기
-   * @param depth 버튼의 z-index (depth)
-   * @returns 생성된 버튼 이미지 객체
+   * ì¼ê´ë ì¤íì¼ì ë²í¼ì ìì±í©ëë¤
+   * @param scene ë²í¼ì ìì±í  ì¬
+   * @param x ë²í¼ì x ì¢í
+   * @param y ë²í¼ì y ì¢í
+   * @param imageKey ë²í¼ ë°°ê²½ ì´ë¯¸ì§ í¤
+   * @param text ë²í¼ì íìí  íì¤í¸
+   * @param onClick ë²í¼ í´ë¦­ ì ì¤íí  ì½ë°± í¨ì
+   * @param width ë²í¼ ëë¹ (í½ì)
+   * @param height ë²í¼ ëì´ (í½ì)
+   * @param fontSize ë²í¼ íì¤í¸ í¬ê¸°
+   * @param depth ë²í¼ì z-index (depth)
+   * @returns ìì±ë ë²í¼ ì´ë¯¸ì§ ê°ì²´
    */
   static createButton(
     scene: Phaser.Scene,
@@ -30,19 +30,19 @@ export class ButtonFactory {
     fontSize: string = '20px',
     depth: number = 100
   ): Phaser.GameObjects.Image {
-    // 이미지 키가 존재하는지 확인
+    // ì´ë¯¸ì§ í¤ê° ì¡´ì¬íëì§ íì¸
     if (!scene.textures.exists(imageKey)) {
-      // 폴백 버튼 생성
+      // í´ë°± ë²í¼ ìì±
       ButtonFactory.createFallbackButton(scene, imageKey);
     }
     
-    // 버튼 이미지 생성
+    // ë²í¼ ì´ë¯¸ì§ ìì±
     const button = scene.add.image(x, y, imageKey);
     button.setDisplaySize(width, height);
     button.setInteractive({ useHandCursor: true });
     button.setDepth(depth);
     
-    // 버튼 텍스트 생성
+    // ë²í¼ íì¤í¸ ìì±
     const buttonText = scene.add.text(x, y, text, {
       fontFamily: 'Arial',
       fontSize: fontSize,
@@ -51,12 +51,12 @@ export class ButtonFactory {
       strokeThickness: 2
     });
     buttonText.setOrigin(0.5);
-    buttonText.setDepth(depth + 1); // 텍스트가 버튼 위에 표시되도록 depth 설정
+    buttonText.setDepth(depth + 1); // íì¤í¸ê° ë²í¼ ìì íìëëë¡ depth ì¤ì 
     
-    // 클릭 이벤트 설정
+    // í´ë¦­ ì´ë²¤í¸ ì¤ì 
     button.on('pointerdown', onClick);
     
-    // 호버 효과
+    // í¸ë² í¨ê³¼
     button.on('pointerover', () => {
       button.setTint(0xdddddd);
     });
@@ -69,18 +69,18 @@ export class ButtonFactory {
   }
   
   /**
-   * 스크롤 팩터가 0으로 설정된 UI용 버튼을 생성합니다 (카메라 이동에 영향받지 않음)
-   * @param scene 버튼을 생성할 씬
-   * @param x 버튼의 x 좌표
-   * @param y 버튼의 y 좌표
-   * @param imageKey 버튼 배경 이미지 키
-   * @param text 버튼에 표시할 텍스트
-   * @param onClick 버튼 클릭 시 실행할 콜백 함수
-   * @param width 버튼 너비 (픽셀)
-   * @param height 버튼 높이 (픽셀)
-   * @param fontSize 버튼 텍스트 크기
-   * @param depth 버튼의 z-index (depth)
-   * @returns 생성된 버튼 이미지와 텍스트 객체를 포함하는 객체
+   * ì¤í¬ë¡¤ í©í°ê° 0ì¼ë¡ ì¤ì ë UIì© ë²í¼ì ìì±í©ëë¤ (ì¹´ë©ë¼ ì´ëì ìí¥ë°ì§ ìì)
+   * @param scene ë²í¼ì ìì±í  ì¬
+   * @param x ë²í¼ì x ì¢í
+   * @param y ë²í¼ì y ì¢í
+   * @param imageKey ë²í¼ ë°°ê²½ ì´ë¯¸ì§ í¤
+   * @param text ë²í¼ì íìí  íì¤í¸
+   * @param onClick ë²í¼ í´ë¦­ ì ì¤íí  ì½ë°± í¨ì
+   * @param width ë²í¼ ëë¹ (í½ì)
+   * @param height ë²í¼ ëì´ (í½ì)
+   * @param fontSize ë²í¼ íì¤í¸ í¬ê¸°
+   * @param depth ë²í¼ì z-index (depth)
+   * @returns ìì±ë ë²í¼ ì´ë¯¸ì§ì íì¤í¸ ê°ì²´ë¥¼ í¬í¨íë ê°ì²´
    */
   static createUIButton(
     scene: Phaser.Scene,
@@ -94,20 +94,20 @@ export class ButtonFactory {
     fontSize: string = '20px',
     depth: number = 1000
   ): { button: Phaser.GameObjects.Image, text: Phaser.GameObjects.Text } {
-    // 이미지 키가 존재하는지 확인
+    // ì´ë¯¸ì§ í¤ê° ì¡´ì¬íëì§ íì¸
     if (!scene.textures.exists(imageKey)) {
-      // 폴백 버튼 생성
+      // í´ë°± ë²í¼ ìì±
       ButtonFactory.createFallbackButton(scene, imageKey);
     }
     
-    // 버튼 이미지 생성
+    // ë²í¼ ì´ë¯¸ì§ ìì±
     const button = scene.add.image(x, y, imageKey);
     button.setDisplaySize(width, height);
     button.setInteractive({ useHandCursor: true });
-    button.setScrollFactor(0); // 카메라 이동에 영향받지 않도록 설정
+    button.setScrollFactor(0); // ì¹´ë©ë¼ ì´ëì ìí¥ë°ì§ ìëë¡ ì¤ì 
     button.setDepth(depth);
     
-    // 버튼 텍스트 생성
+    // ë²í¼ íì¤í¸ ìì±
     const buttonText = scene.add.text(x, y, text, {
       fontFamily: 'Arial',
       fontSize: fontSize,
@@ -116,13 +116,13 @@ export class ButtonFactory {
       strokeThickness: 2
     });
     buttonText.setOrigin(0.5);
-    buttonText.setScrollFactor(0); // 카메라 이동에 영향받지 않도록 설정
-    buttonText.setDepth(depth + 1); // 텍스트가 버튼 위에 표시되도록 depth 설정
+    buttonText.setScrollFactor(0); // ì¹´ë©ë¼ ì´ëì ìí¥ë°ì§ ìëë¡ ì¤ì 
+    buttonText.setDepth(depth + 1); // íì¤í¸ê° ë²í¼ ìì íìëëë¡ depth ì¤ì 
     
-    // 클릭 이벤트 설정
+    // í´ë¦­ ì´ë²¤í¸ ì¤ì 
     button.on('pointerdown', onClick);
     
-    // 호버 효과
+    // í¸ë² í¨ê³¼
     button.on('pointerover', () => {
       button.setTint(0xdddddd);
     });
@@ -135,34 +135,34 @@ export class ButtonFactory {
   }
   
   /**
-   * 폴백 버튼 텍스처 생성 (이미지 로드 실패 시)
-   * @param scene 텍스처를 생성할 씬
-   * @param key 생성할 텍스처 키
+   * í´ë°± ë²í¼ íì¤ì² ìì± (ì´ë¯¸ì§ ë¡ë ì¤í¨ ì)
+   * @param scene íì¤ì²ë¥¼ ìì±í  ì¬
+   * @param key ìì±í  íì¤ì² í¤
    */
   static createFallbackButton(scene: Phaser.Scene, key: string) {
     console.log(`Creating fallback button texture: ${key}`);
     const graphics = scene.make.graphics({ x: 0, y: 0 });
     
-    // 버튼 색상 결정
-    let color = 0x3498db; // 기본 파란색
+    // ë²í¼ ìì ê²°ì 
+    let color = 0x3498db; // ê¸°ë³¸ íëì
     
     if (key.includes('blue')) {
-      color = 0x3498db; // 파란색
+      color = 0x3498db; // íëì
     } else if (key.includes('red')) {
-      color = 0xe74c3c; // 빨간색
+      color = 0xe74c3c; // ë¹¨ê°ì
     } else if (key.includes('green')) {
-      color = 0x2ecc71; // 초록색
+      color = 0x2ecc71; // ì´ë¡ì
     }
     
-    // 버튼 배경
+    // ë²í¼ ë°°ê²½
     graphics.fillStyle(color);
     graphics.fillRoundedRect(0, 0, 180, 60, 10);
     
-    // 버튼 테두리
+    // ë²í¼ íëë¦¬
     graphics.lineStyle(2, 0xffffff, 1);
     graphics.strokeRoundedRect(0, 0, 180, 60, 10);
     
-    // 텍스처 생성
+    // íì¤ì² ìì±
     graphics.generateTexture(key, 180, 60);
     graphics.destroy();
   }

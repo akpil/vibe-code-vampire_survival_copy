@@ -4,7 +4,7 @@ import Phaser from 'phaser';
 export function generatePlayerSprite(scene: Phaser.Scene) {
   const graphics = scene.make.graphics({ x: 0, y: 0 });
   
-  // Draw player character - Ã«ÂÂ Ã«Â°ÂÃ¬ÂÂ Ã¬ÂÂÃ¬ÂÂÃ¬ÂÂ¼Ã«Â¡Â Ã«Â³ÂÃªÂ²Â½
+  // Draw player character - 원형 캐릭터 스프라이트 생성
   graphics.fillStyle(0x3498db);
   graphics.fillCircle(16, 16, 14);
   
@@ -12,7 +12,7 @@ export function generatePlayerSprite(scene: Phaser.Scene) {
   graphics.fillStyle(0x2980b9);
   graphics.fillCircle(16, 16, 8);
   
-  // Ã­ÂÂÃ«ÂÂÃ«Â¦Â¬ Ã¬Â¶ÂÃªÂ°Â
+  // 테두리 추가
   graphics.lineStyle(2, 0xffffff, 1);
   graphics.strokeCircle(16, 16, 14);
   
@@ -34,7 +34,7 @@ export function generateEnemySprite(scene: Phaser.Scene, key: string, color: str
   if (key === 'enemy1') {
     // Square enemy
     graphics.fillRect(4, 4, 24, 24);
-    // Ã­ÂÂÃ«ÂÂÃ«Â¦Â¬ Ã¬Â¶ÂÃªÂ°Â
+    // 테두리 추가
     graphics.lineStyle(2, 0xffffff, 1);
     graphics.strokeRect(4, 4, 24, 24);
   } else if (key === 'enemy2') {
@@ -45,7 +45,7 @@ export function generateEnemySprite(scene: Phaser.Scene, key: string, color: str
     graphics.lineTo(4, 28);
     graphics.closePath();
     graphics.fillPath();
-    // Ã­ÂÂÃ«ÂÂÃ«Â¦Â¬ Ã¬Â¶ÂÃªÂ°Â
+    // 테두리 추가
     graphics.lineStyle(2, 0xffffff, 1);
     graphics.beginPath();
     graphics.moveTo(16, 4);
@@ -66,7 +66,7 @@ export function generateEnemySprite(scene: Phaser.Scene, key: string, color: str
     graphics.lineTo(10, 14);
     graphics.closePath();
     graphics.fillPath();
-    // Ã­ÂÂÃ«ÂÂÃ«Â¦Â¬ Ã¬Â¶ÂÃªÂ°Â
+    // 테두리 추가
     graphics.lineStyle(2, 0xffffff, 1);
     graphics.beginPath();
     graphics.moveTo(16, 4);
@@ -99,7 +99,7 @@ export function generateWeaponSprite(scene: Phaser.Scene, key: string, color: st
     // Knife shape
     graphics.fillRect(12, 4, 8, 24);
     graphics.fillTriangle(12, 4, 20, 4, 16, 0);
-    // Ã­ÂÂÃ«ÂÂÃ«Â¦Â¬ Ã¬Â¶ÂÃªÂ°Â
+    // 테두리 추가
     graphics.lineStyle(2, 0xffffff, 1);
     graphics.strokeRect(12, 4, 8, 24);
     graphics.beginPath();
@@ -109,25 +109,22 @@ export function generateWeaponSprite(scene: Phaser.Scene, key: string, color: st
     graphics.closePath();
     graphics.strokePath();
   } else if (key === 'axe') {
-    // Axe shape
-    graphics.fillRect(14, 8, 4, 16);
-    graphics.fillTriangle(6, 8, 14, 8, 14, 16);
-    graphics.fillTriangle(18, 8, 26, 8, 18, 16);
-    // Ã­ÂÂÃ«ÂÂÃ«Â¦Â¬ Ã¬Â¶ÂÃªÂ°Â
+    // Shield shape (replacing axe)
+    graphics.fillStyle(0x3498db); // Blue shield
+    graphics.fillCircle(16, 16, 12);
+    
+    // Shield details
+    graphics.fillStyle(0x2980b9);
+    graphics.fillCircle(16, 16, 8);
+    
+    // Shield border
     graphics.lineStyle(2, 0xffffff, 1);
-    graphics.strokeRect(14, 8, 4, 16);
-    graphics.beginPath();
-    graphics.moveTo(6, 8);
-    graphics.lineTo(14, 8);
-    graphics.lineTo(14, 16);
-    graphics.closePath();
-    graphics.strokePath();
-    graphics.beginPath();
-    graphics.moveTo(18, 8);
-    graphics.lineTo(26, 8);
-    graphics.lineTo(18, 16);
-    graphics.closePath();
-    graphics.strokePath();
+    graphics.strokeCircle(16, 16, 12);
+    
+    // Shield emblem
+    graphics.fillStyle(0xffffff);
+    graphics.fillRect(14, 10, 4, 12);
+    graphics.fillRect(10, 14, 12, 4);
   } else if (key === 'magic') {
     // Magic orb
     graphics.fillCircle(16, 16, 8);
@@ -136,7 +133,7 @@ export function generateWeaponSprite(scene: Phaser.Scene, key: string, color: st
     graphics.fillStyle(0xffffff, 0.5);
     graphics.fillCircle(16, 16, 12);
     
-    // Ã­ÂÂÃ«ÂÂÃ«Â¦Â¬ Ã¬Â¶ÂÃªÂ°Â
+    // 테두리 추가
     graphics.lineStyle(2, 0xffffff, 1);
     graphics.strokeCircle(16, 16, 8);
   }
@@ -164,7 +161,7 @@ export function generateGemSprite(scene: Phaser.Scene) {
   graphics.fillStyle(0xffffff, 0.7);
   graphics.fillTriangle(12, 8, 16, 4, 20, 8);
   
-  // Ã­ÂÂÃ«ÂÂÃ«Â¦Â¬ Ã¬Â¶ÂÃªÂ°Â
+  // 테두리 추가
   graphics.lineStyle(2, 0xffffff, 1);
   graphics.beginPath();
   graphics.moveTo(8, 4);

@@ -29,7 +29,8 @@ export class BootScene extends Phaser.Scene {
     
     // 무기 아이콘 로드 - 프로젝타일 방식
     this.load.image('knife', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/projectile/sword.png');
-    this.load.image('axe', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/projectile/axe.png');
+    // 도끼 대신 방패 스프라이트 사용 (회전 오브젝트)
+    this.load.image('axe', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/projectile/shield.png');
     this.load.image('magic', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/effectSheet/whip.png');
     
     // 캐릭터 스프라이트 아틀라스 로드 - 아틀라스 방식

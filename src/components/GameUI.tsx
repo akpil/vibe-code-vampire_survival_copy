@@ -11,19 +11,19 @@ export const GameUI = () => {
   const [gameOver, setGameOver] = useState(false);
   const [currentScene, setCurrentScene] = useState<string>(SceneKeys.TITLE);
   
-  // 전투 씬에서만 UI를 표시하기 위한 상태
+  // ì í¬ ì¬ììë§ UIë¥¼ íìíê¸° ìí ìí
   const [showUI, setShowUI] = useState(false);
   
   useEffect(() => {
-    // 씬 변경 이벤트 구독
+    // ì¬ ë³ê²½ ì´ë²¤í¸ êµ¬ë
     const sceneListener = gameEvents.on('scene-changed', (sceneName: string) => {
       setCurrentScene(sceneName);
       
-      // MainScene일 때만 UI 표시
+      // MainSceneì¼ ëë§ UI íì
       setShowUI(sceneName === SceneKeys.MAIN);
     });
     
-    // 게임 이벤트 구독
+    // ê²ì ì´ë²¤í¸ êµ¬ë
     const healthListener = gameEvents.on('health-changed', (newHealth: number) => {
       setHealth(newHealth);
       if (newHealth <= 0) {
@@ -48,7 +48,7 @@ export const GameUI = () => {
       setGameOver(true);
     });
     
-    // 컴포넌트 언마운트 시 이벤트 리스너 정리
+    // ì»´í¬ëí¸ ì¸ë§ì´í¸ ì ì´ë²¤í¸ ë¦¬ì¤ë ì ë¦¬
     return () => {
       sceneListener.destroy();
       healthListener.destroy();
@@ -59,7 +59,7 @@ export const GameUI = () => {
     };
   }, []);
   
-  // 게임 재시작
+  // ê²ì ì¬ìì
   const handleRestart = () => {
     setGameOver(false);
     setHealth(100);
@@ -68,25 +68,25 @@ export const GameUI = () => {
     setXPToNextLevel(100);
     setScore(0);
     
-    // 게임 재시작 이벤트 발생
+    // ê²ì ì¬ìì ì´ë²¤í¸ ë°ì
     gameEvents.emit('restart-game');
     
-    // 페이지 새로고침 (간단한 방법)
+    // íì´ì§ ìë¡ê³ ì¹¨ (ê°ë¨í ë°©ë²)
     window.location.reload();
   };
   
-  // UI가 표시되지 않아야 하는 경우 빈 컴포넌트 반환
+  // UIê° íìëì§ ììì¼ íë ê²½ì° ë¹ ì»´í¬ëí¸ ë°í
   if (!showUI && !gameOver) {
     return null;
   }
   
   return (
     <div className="game-ui">
-      {/* 상태 표시 UI */}
+      {/* ìí íì UI */}
       {showUI && (
         <div className="stats-container">
           <div className="stat">
-            <div className="stat-label">체력</div>
+            <div className="stat-label">ì²´ë ¥</div>
             <div className="health-bar">
               <div 
                 className="health-fill" 
@@ -96,7 +96,7 @@ export const GameUI = () => {
           </div>
           
           <div className="stat">
-            <div className="stat-label">레벨 {level}</div>
+            <div className="stat-label">ë ë²¨ {level}</div>
             <div className="xp-bar">
               <div 
                 className="xp-fill" 
@@ -106,19 +106,19 @@ export const GameUI = () => {
           </div>
           
           <div className="stat">
-            <div className="stat-label">점수: {score}</div>
+            <div className="stat-label">ì ì: {score}</div>
           </div>
         </div>
       )}
       
-      {/* 게임 오버 화면 */}
+      {/* ê²ì ì¤ë² íë©´ */}
       {gameOver && (
         <div className="game-over-container">
           <div className="game-over-panel">
-            <h2>게임 오버</h2>
-            <p>최종 점수: {score}</p>
-            <p>최종 레벨: {level}</p>
-            <button onClick={handleRestart}>다시 시작</button>
+            <h2>ê²ì ì¤ë²</h2>
+            <p>ìµì¢ ì ì: {score}</p>
+            <p>ìµì¢ ë ë²¨: {level}</p>
+            <button onClick={handleRestart}>ë¤ì ìì</button>
           </div>
         </div>
       )}

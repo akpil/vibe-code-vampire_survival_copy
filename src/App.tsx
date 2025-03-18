@@ -16,18 +16,18 @@ function App() {
   useEffect(() => {
     if (!gameRef.current) return;
     
-    // 이미 게임 인스턴스가 있으면 제거
+    // ì´ë¯¸ ê²ì ì¸ì¤í´ì¤ê° ìì¼ë©´ ì ê±°
     if (gameInstance.current) {
       gameInstance.current.destroy(true);
       gameInstance.current = null;
     }
     
-    // 게임 컨테이너 초기화
+    // ê²ì ì»¨íì´ë ì´ê¸°í
     while (gameRef.current.firstChild) {
       gameRef.current.removeChild(gameRef.current.firstChild);
     }
     
-    // 게임 설정
+    // ê²ì ì¤ì 
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
       width: window.innerWidth,
@@ -48,7 +48,7 @@ function App() {
       }
     };
     
-    // 게임 인스턴스 생성
+    // ê²ì ì¸ì¤í´ì¤ ìì±
     try {
       gameInstance.current = new Phaser.Game(config);
       console.log("Phaser game initialized successfully");
@@ -56,7 +56,7 @@ function App() {
       console.error("Failed to initialize Phaser game:", error);
     }
     
-    // 컴포넌트 언마운트 시 정리
+    // ì»´í¬ëí¸ ì¸ë§ì´í¸ ì ì ë¦¬
     return () => {
       if (gameInstance.current) {
         gameInstance.current.destroy(true);

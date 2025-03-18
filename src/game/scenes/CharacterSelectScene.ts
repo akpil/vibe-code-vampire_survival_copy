@@ -13,28 +13,28 @@ export class CharacterSelectScene extends Phaser.Scene {
   }
   
   init(data: any) {
-    // 이전 씬에서 전달받은 챕터 정보
+    // ì´ì  ì¬ìì ì ë¬ë°ì ì±í° ì ë³´
     this.selectedChapter = data.chapter || 1;
   }
   
   create() {
-    // 씬 변경 이벤트 발생
+    // ì¬ ë³ê²½ ì´ë²¤í¸ ë°ì
     gameEvents.emit('scene-changed', SceneKeys.CHARACTER_SELECT);
     
     console.log('CharacterSelectScene: create started');
     
-    // 텍스처 로드 확인
+    // íì¤ì² ë¡ë íì¸
     this.checkTextures();
     
-    // 배경 설정
+    // ë°°ê²½ ì¤ì 
     const bg = this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0x000033);
     bg.setOrigin(0, 0);
     
-    // 타이틀 텍스트
+    // íì´í íì¤í¸
     const titleText = this.add.text(
       this.cameras.main.centerX,
       this.cameras.main.height * 0.15,
-      '캐릭터 선택',
+      'ìºë¦­í° ì í',
       {
         fontFamily: 'Arial',
         fontSize: '48px',
@@ -45,11 +45,11 @@ export class CharacterSelectScene extends Phaser.Scene {
     );
     titleText.setOrigin(0.5);
     
-    // 선택한 챕터 표시
+    // ì íí ì±í° íì
     const chapterText = this.add.text(
       this.cameras.main.centerX,
       this.cameras.main.height * 0.25,
-      `선택한 챕터: ${this.selectedChapter}`,
+      `ì íí ì±í°: ${this.selectedChapter}`,
       {
         fontFamily: 'Arial',
         fontSize: '24px',
@@ -58,44 +58,44 @@ export class CharacterSelectScene extends Phaser.Scene {
     );
     chapterText.setOrigin(0.5);
     
-    // 캐릭터 프레임 정보 가져오기
+    // ìºë¦­í° íë ì ì ë³´ ê°ì ¸ì¤ê¸°
     this.prepareCharacterFrames();
     
-    // 캐릭터 카드 생성
+    // ìºë¦­í° ì¹´ë ìì±
     this.createCharacterCard(
       this.cameras.main.centerX - 250,
       this.cameras.main.centerY + 30,
       CharacterType.WARRIOR,
-      '전사',
-      '근접 공격 전문가',
-      '체력: 높음\n공격력: 중간\n속도: 낮음'
+      'ì ì¬',
+      'ê·¼ì  ê³µê²© ì ë¬¸ê°',
+      'ì²´ë ¥: ëì\nê³µê²©ë ¥: ì¤ê°\nìë: ë®ì'
     );
     
     this.createCharacterCard(
       this.cameras.main.centerX,
       this.cameras.main.centerY + 30,
       CharacterType.MAGE,
-      '마법사',
-      '원거리 공격 전문가',
-      '체력: 낮음\n공격력: 높음\n속도: 중간'
+      'ë§ë²ì¬',
+      'ìê±°ë¦¬ ê³µê²© ì ë¬¸ê°',
+      'ì²´ë ¥: ë®ì\nê³µê²©ë ¥: ëì\nìë: ì¤ê°'
     );
     
     this.createCharacterCard(
       this.cameras.main.centerX + 250,
       this.cameras.main.centerY + 30,
       CharacterType.ARCHER,
-      '궁수',
-      '빠른 공격 전문가',
-      '체력: 중간\n공격력: 중간\n속도: 높음'
+      'ê¶ì',
+      'ë¹ ë¥¸ ê³µê²© ì ë¬¸ê°',
+      'ì²´ë ¥: ì¤ê°\nê³µê²©ë ¥: ì¤ê°\nìë: ëì'
     );
     
-    // 뒤로 가기 버튼 - ButtonFactory 사용
+    // ë¤ë¡ ê°ê¸° ë²í¼ - ButtonFactory ì¬ì©
     ButtonFactory.createButton(
       this,
       100,
       this.cameras.main.height - 50,
       'btn-red',
-      '뒤로',
+      'ë¤ë¡',
       () => {
         this.scene.start(SceneKeys.CHAPTER_SELECT);
       },
@@ -106,7 +106,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     console.log('CharacterSelectScene: create completed');
   }
   
-  // 텍스처 로드 확인
+  // íì¤ì² ë¡ë íì¸
   checkTextures() {
     console.log('CharacterSelectScene - Checking textures:');
     console.log('- frame:', this.textures.exists('frame'));
@@ -114,7 +114,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     console.log('- btn-blue:', this.textures.exists('btn-blue'));
     console.log('- characters:', this.textures.exists('characters'));
     
-    // 텍스처가 없는 경우 폴백 생성
+    // íì¤ì²ê° ìë ê²½ì° í´ë°± ìì±
     if (!this.textures.exists('frame')) {
       this.createFallbackFrame();
     }
@@ -128,48 +128,48 @@ export class CharacterSelectScene extends Phaser.Scene {
     }
   }
   
-  // 폴백 프레임 생성
+  // í´ë°± íë ì ìì±
   createFallbackFrame() {
     console.log('Creating fallback frame');
     const graphics = this.make.graphics({ x: 0, y: 0 });
     
-    // 프레임 배경
+    // íë ì ë°°ê²½
     graphics.fillStyle(0x333333, 0.8);
     graphics.fillRoundedRect(0, 0, 200, 300, 10);
     
-    // 프레임 테두리
+    // íë ì íëë¦¬
     graphics.lineStyle(4, 0x666666, 1);
     graphics.strokeRoundedRect(0, 0, 200, 300, 10);
     
-    // 텍스처 생성
+    // íì¤ì² ìì±
     graphics.generateTexture('frame', 200, 300);
     graphics.destroy();
   }
   
-  // 폴백 버튼 생성
+  // í´ë°± ë²í¼ ìì±
   createFallbackButton(key: string, color: number) {
     console.log(`Creating fallback button: ${key}`);
     const graphics = this.make.graphics({ x: 0, y: 0 });
     
-    // 버튼 배경
+    // ë²í¼ ë°°ê²½
     graphics.fillStyle(color);
     graphics.fillRoundedRect(0, 0, 180, 60, 10);
     
-    // 버튼 테두리
+    // ë²í¼ íëë¦¬
     graphics.lineStyle(2, 0xffffff, 1);
     graphics.strokeRoundedRect(0, 0, 180, 60, 10);
     
-    // 텍스처 생성
+    // íì¤ì² ìì±
     graphics.generateTexture(key, 180, 60);
     graphics.destroy();
   }
   
-  // 캐릭터 프레임 정보 준비
+  // ìºë¦­í° íë ì ì ë³´ ì¤ë¹
   prepareCharacterFrames() {
     if (this.textures.exists('characters')) {
       const frames = this.textures.get('characters').getFrameNames();
       
-      // 각 캐릭터 타입별로 프레임 필터링
+      // ê° ìºë¦­í° íìë³ë¡ íë ì íí°ë§
       Object.values(CharacterType).forEach(type => {
         this.characterFrames[type] = frames.filter(frame => frame.includes(`cha_${type}_`));
       });
@@ -181,20 +181,20 @@ export class CharacterSelectScene extends Phaser.Scene {
   }
   
   createCharacterCard(x: number, y: number, characterType: CharacterType, title: string, description: string, stats: string) {
-    // 프레임 배경
+    // íë ì ë°°ê²½
     const frame = this.add.image(x, y, 'frame');
     frame.setDisplaySize(200, 300);
     frame.setTint(0x888888);
     
-    // 캐릭터 프리뷰 이미지 (스프라이트 아틀라스에서)
+    // ìºë¦­í° íë¦¬ë·° ì´ë¯¸ì§ (ì¤íë¼ì´í¸ ìíë¼ì¤ìì)
     let characterImage;
     
     if (this.characterFrames[characterType] && this.characterFrames[characterType].length > 0) {
-      // 스프라이트 아틀라스에서 첫 번째 프레임 사용
+      // ì¤íë¼ì´í¸ ìíë¼ì¤ìì ì²« ë²ì§¸ íë ì ì¬ì©
       characterImage = this.add.image(x, y - 70, 'characters', this.characterFrames[characterType][0]);
       characterImage.setDisplaySize(160, 160);
       
-      // 애니메이션 설정
+      // ì ëë©ì´ì ì¤ì 
       const animKey = `${characterType}_select`;
       
       if (!this.anims.exists(animKey) && this.characterFrames[characterType].length >= 2) {
@@ -207,18 +207,18 @@ export class CharacterSelectScene extends Phaser.Scene {
           repeat: -1
         });
         
-        // 스프라이트로 변환하여 애니메이션 재생
+        // ì¤íë¼ì´í¸ë¡ ë³ííì¬ ì ëë©ì´ì ì¬ì
         characterImage.destroy();
         characterImage = this.add.sprite(x, y - 70, 'characters', this.characterFrames[characterType][0]);
         characterImage.setDisplaySize(160, 160);
         characterImage.play(animKey);
       }
     } else {
-      // 폴백: 색상 있는 사각형으로 표시
+      // í´ë°±: ìì ìë ì¬ê°íì¼ë¡ íì
       characterImage = this.add.rectangle(x, y - 70, 160, 160, this.getColorForCharacter(characterType));
     }
     
-    // 캐릭터 이름
+    // ìºë¦­í° ì´ë¦
     const titleText = this.add.text(
       x,
       y + 30,
@@ -233,7 +233,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     );
     titleText.setOrigin(0.5);
     
-    // 캐릭터 설명
+    // ìºë¦­í° ì¤ëª
     const descText = this.add.text(
       x,
       y + 60,
@@ -247,7 +247,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     );
     descText.setOrigin(0.5);
     
-    // 캐릭터 스탯
+    // ìºë¦­í° ì¤í¯
     const statsText = this.add.text(
       x,
       y + 100,
@@ -261,15 +261,15 @@ export class CharacterSelectScene extends Phaser.Scene {
     );
     statsText.setOrigin(0.5);
     
-    // 선택 버튼
+    // ì í ë²í¼
     const selectButton = ButtonFactory.createButton(
       this,
       x,
       y + 140,
       'btn-blue',
-      '선택',
+      'ì í',
       () => {
-        // 게임 시작 - 선택한 챕터와 캐릭터 정보 전달
+        // ê²ì ìì - ì íí ì±í°ì ìºë¦­í° ì ë³´ ì ë¬
         this.scene.start(SceneKeys.MAIN, { 
           chapter: this.selectedChapter,
           character: characterType
@@ -280,17 +280,17 @@ export class CharacterSelectScene extends Phaser.Scene {
       '16px'
     );
     
-    // 전체 카드를 인터랙티브하게 만들기
+    // ì ì²´ ì¹´ëë¥¼ ì¸í°ëí°ë¸íê² ë§ë¤ê¸°
     frame.setInteractive({ useHandCursor: true });
     frame.on('pointerdown', () => {
-      // 게임 시작 - 선택한 챕터와 캐릭터 정보 전달
+      // ê²ì ìì - ì íí ì±í°ì ìºë¦­í° ì ë³´ ì ë¬
       this.scene.start(SceneKeys.MAIN, { 
         chapter: this.selectedChapter,
         character: characterType
       });
     });
     
-    // 호버 효과
+    // í¸ë² í¨ê³¼
     frame.on('pointerover', () => {
       frame.setTint(0xaaaaaa);
     });
@@ -302,7 +302,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     return frame;
   }
   
-  // 캐릭터 타입에 따른 색상 반환 (폴백용)
+  // ìºë¦­í° íìì ë°ë¥¸ ìì ë°í (í´ë°±ì©)
   getColorForCharacter(type: CharacterType): number {
     switch (type) {
       case CharacterType.WARRIOR:

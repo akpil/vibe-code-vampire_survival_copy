@@ -9,14 +9,14 @@ export class XPGem extends Phaser.Physics.Arcade.Sprite {
     scene.add.existing(this);
     scene.physics.add.existing(this);
     
-    // 젬 설정
+    // ì ¬ ì¤ì 
     this.setScale(0.8);
     this.value = 10;
     
-    // 물리 바디 설정
+    // ë¬¼ë¦¬ ë°ë ì¤ì 
     this.body.setSize(16, 16);
     
-    // 젬이 플레이어를 향해 서서히 이동하도록 설정
+    // ì ¬ì´ íë ì´ì´ë¥¼ í¥í´ ììí ì´ëíëë¡ ì¤ì 
     scene.time.addEvent({
       delay: 100,
       callback: this.moveTowardsPlayer,
@@ -24,14 +24,14 @@ export class XPGem extends Phaser.Physics.Arcade.Sprite {
       loop: true
     });
     
-    // 일정 시간 후 자동 파괴
+    // ì¼ì  ìê° í ìë íê´´
     scene.time.delayedCall(10000, () => {
       if (this.active) {
         this.destroy();
       }
     });
     
-    // 생성 효과
+    // ìì± í¨ê³¼
     scene.tweens.add({
       targets: this,
       scale: 0.8,
@@ -40,7 +40,7 @@ export class XPGem extends Phaser.Physics.Arcade.Sprite {
       yoyo: false
     });
     
-    // 회전 효과 추가
+    // íì  í¨ê³¼ ì¶ê°
     scene.tweens.add({
       targets: this,
       angle: 360,
@@ -52,7 +52,7 @@ export class XPGem extends Phaser.Physics.Arcade.Sprite {
   
   moveTowardsPlayer() {
     try {
-      // 플레이어 찾기 - scene.children.list를 사용하여 모든 게임 오브젝트 접근
+      // íë ì´ì´ ì°¾ê¸° - scene.children.listë¥¼ ì¬ì©íì¬ ëª¨ë  ê²ì ì¤ë¸ì í¸ ì ê·¼
       const gameObjects = this.scene.children.list;
       const player = gameObjects.find(child => 
         child instanceof Phaser.GameObjects.Sprite && 
@@ -60,14 +60,14 @@ export class XPGem extends Phaser.Physics.Arcade.Sprite {
       );
       
       if (player && player instanceof Phaser.GameObjects.Sprite) {
-        // 플레이어와의 거리 계산
+        // íë ì´ì´ìì ê±°ë¦¬ ê³ì°
         const distance = Phaser.Math.Distance.Between(
           this.x, this.y,
           player.x,
           player.y
         );
         
-        // 일정 거리 이내면 플레이어를 향해 이동
+        // ì¼ì  ê±°ë¦¬ ì´ë´ë©´ íë ì´ì´ë¥¼ í¥í´ ì´ë
         if (distance < 200) {
           const angle = Phaser.Math.Angle.Between(
             this.x, this.y,

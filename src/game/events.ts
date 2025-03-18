@@ -13,5 +13,5 @@ export const GameEvents = {
   GAME_OVER: 'game-over',
   ENEMY_KILLED: 'enemy-killed',
   ASSETS_LOADED: 'assets-loaded',
-  SCENE_CHANGED: 'scene-changed' // ìë¡ ì¶ê°: ì¬ ë³ê²½ ì´ë²¤í¸
+  SCENE_CHANGED: 'scene-changed' // 새로 추가: 씬 변경 이벤트
 };

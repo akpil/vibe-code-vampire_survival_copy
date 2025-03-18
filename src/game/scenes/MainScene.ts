@@ -21,14 +21,14 @@ export class MainScene extends Phaser.Scene {
   
   kills: number = 0;
   
-  // 배경 타일 스프라이트
+  // ë°°ê²½ íì¼ ì¤íë¼ì´í¸
   backgroundTile: Phaser.GameObjects.TileSprite;
   
-  // 맵 크기 설정
+  // ë§µ í¬ê¸° ì¤ì 
   readonly MAP_WIDTH: number = 4000;
   readonly MAP_HEIGHT: number = 4000;
   
-  // 게임 설정
+  // ê²ì ì¤ì 
   private chapterNumber: number = 1;
   private characterType: CharacterType = CharacterType.WARRIOR;
   
@@ -37,7 +37,7 @@ export class MainScene extends Phaser.Scene {
   }
   
   init(data: any) {
-    // 이전 씬에서 전달받은 챕터와 캐릭터 정보
+    // ì´ì  ì¬ìì ì ë¬ë°ì ì±í°ì ìºë¦­í° ì ë³´
     this.chapterNumber = data.chapter || 1;
     this.characterType = data.character || CharacterType.WARRIOR;
     
@@ -45,15 +45,15 @@ export class MainScene extends Phaser.Scene {
   }
 
   create() {
-    // 씬 변경 이벤트 발생 - UI 표시를 위해 추가
+    // ì¬ ë³ê²½ ì´ë²¤í¸ ë°ì - UI íìë¥¼ ìí´ ì¶ê°
     gameEvents.emit('scene-changed', SceneKeys.MAIN);
     
     console.log('MainScene create method started');
     
-    // 월드 경계설정 - 맵 크기 확장
+    // ìë ê²½ê³ì¤ì  - ë§µ í¬ê¸° íì¥
     this.physics.world.setBounds(0, 0, this.MAP_WIDTH, this.MAP_HEIGHT);
     
-    // 텍스처 로딩 확인
+    // íì¤ì² ë¡ë© íì¸
     this.checkTextures();
     
     // Create background with tile sprite
@@ -104,36 +104,36 @@ export class MainScene extends Phaser.Scene {
     gameEvents.emit('kills-changed', this.kills);
     gameEvents.emit('time-changed', this.gameTime);
     
-    // 챕터에 따른 난이도 조정
+    // ì±í°ì ë°ë¥¸ ëì´ë ì¡°ì 
     this.adjustDifficultyByChapter();
     
-    // 일시정지 메뉴 설정 - ESC 키 설정
+    // ì¼ìì ì§ ë©ë´ ì¤ì  - ESC í¤ ì¤ì 
     this.setupPauseMenu();
     
     console.log('MainScene create method completed');
   }
   
-  // 챕터에 따른 난이도 조정
+  // ì±í°ì ë°ë¥¸ ëì´ë ì¡°ì 
   adjustDifficultyByChapter() {
     switch (this.chapterNumber) {
       case 1:
-        // 챕터 1: 기본 난이도
+        // ì±í° 1: ê¸°ë³¸ ëì´ë
         this.difficulty = 1;
         break;
       case 2:
-        // 챕터 2: 중간 난이도
+        // ì±í° 2: ì¤ê° ëì´ë
         this.difficulty = 3;
         break;
       case 3:
-        // 챕터 3: 높은 난이도
+        // ì±í° 3: ëì ëì´ë
         this.difficulty = 5;
         break;
     }
   }
   
-  // 일시정지 메뉴 설정 - 완전히 새로운 방식으로 구현
+  // ì¼ìì ì§ ë©ë´ ì¤ì  - ìì í ìë¡ì´ ë°©ìì¼ë¡ êµ¬í
   setupPauseMenu() {
-    // ESC 키 설정
+    // ESC í¤ ì¤ì 
     const escKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
     
     escKey.on('down', () => {
@@ -142,16 +142,16 @@ export class MainScene extends Phaser.Scene {
     });
   }
   
-  // 게임 일시정지 메서드 - 별도의 일시정지 씬 사용
+  // ê²ì ì¼ìì ì§ ë©ìë - ë³ëì ì¼ìì ì§ ì¬ ì¬ì©
   pauseGame() {
     console.log('Pausing game');
-    // 현재 씬 일시정지
+    // íì¬ ì¬ ì¼ìì ì§
     this.scene.pause();
-    // 일시정지 씬 시작 (오버레이 모드)
+    // ì¼ìì ì§ ì¬ ìì (ì¤ë²ë ì´ ëª¨ë)
     this.scene.launch(SceneKeys.PAUSE);
   }
 
-  // 텍스처 로딩 확인
+  // íì¤ì² ë¡ë© íì¸
   checkTextures() {
     console.log('MainScene - Checking textures:');
     console.log('- characters:', this.textures.exists('characters'));
@@ -166,38 +166,38 @@ export class MainScene extends Phaser.Scene {
       console.log('Characters frames count:', frames.length);
     }
     
-    // 배경 타일 텍스처가 없는 경우 폴백 생성
+    // ë°°ê²½ íì¼ íì¤ì²ê° ìë ê²½ì° í´ë°± ìì±
     if (!this.textures.exists('background-tile')) {
       this.createFallbackBackgroundTile();
     }
   }
   
-  // 폴백 배경 타일 생성
+  // í´ë°± ë°°ê²½ íì¼ ìì±
   createFallbackBackgroundTile() {
     console.log('Creating fallback background tile');
     const graphics = this.make.graphics({ x: 0, y: 0 });
     
-    // 배경 타일 패턴 생성
+    // ë°°ê²½ íì¼ í¨í´ ìì±
     graphics.fillStyle(0x0a0a20);
     graphics.fillRect(0, 0, 64, 64);
     
-    // 격자 패턴 추가
+    // ê²©ì í¨í´ ì¶ê°
     graphics.lineStyle(1, 0x1a1a40);
     graphics.strokeRect(0, 0, 64, 64);
     graphics.lineBetween(0, 32, 64, 32);
     graphics.lineBetween(32, 0, 32, 64);
     
-    // 텍스처 생성
+    // íì¤ì² ìì±
     graphics.generateTexture('background-tile', 64, 64);
     graphics.destroy();
   }
 
   createBackground() {
-    // 배경 타일 스프라이트 생성 - 전체 맵 크기를 커버하도록 설정
+    // ë°°ê²½ íì¼ ì¤íë¼ì´í¸ ìì± - ì ì²´ ë§µ í¬ê¸°ë¥¼ ì»¤ë²íëë¡ ì¤ì 
     if (this.textures.exists('background-tile')) {
       console.log('Creating background tile sprite');
       
-      // 배경 타일 스프라이트를 카메라 뷰포트 중심에 위치시키고 맵 전체를 커버하도록 설정
+      // ë°°ê²½ íì¼ ì¤íë¼ì´í¸ë¥¼ ì¹´ë©ë¼ ë·°í¬í¸ ì¤ì¬ì ìì¹ìí¤ê³  ë§µ ì ì²´ë¥¼ ì»¤ë²íëë¡ ì¤ì 
       this.backgroundTile = this.add.tileSprite(
         0, 
         0,
@@ -206,10 +206,10 @@ export class MainScene extends Phaser.Scene {
         'background-tile'
       );
       
-      // 원점을 좌상단으로 설정
+      // ìì ì ì¢ìë¨ì¼ë¡ ì¤ì 
       this.backgroundTile.setOrigin(0, 0);
       
-      // 스크롤 팩터를 0으로 설정하여 카메라와 함께 움직이지 않도록 함
+      // ì¤í¬ë¡¤ í©í°ë¥¼ 0ì¼ë¡ ì¤ì íì¬ ì¹´ë©ë¼ì í¨ê» ìì§ì´ì§ ìëë¡ í¨
       this.backgroundTile.setScrollFactor(0);
       
       console.log('Background tile created:', {
@@ -221,7 +221,7 @@ export class MainScene extends Phaser.Scene {
       });
     } else {
       console.error('Background tile texture not found');
-      // 대체 배경 생성
+      // ëì²´ ë°°ê²½ ìì±
       const bg = this.add.rectangle(
         0, 
         0,
@@ -233,18 +233,18 @@ export class MainScene extends Phaser.Scene {
       bg.setScrollFactor(0);
     }
     
-    // 맵 경계표시 (디버깅 및 시각적 피드백용)
+    // ë§µ ê²½ê³íì (ëë²ê¹ ë° ìê°ì  í¼ëë°±ì©)
     this.createMapBoundaryIndicators();
   }
   
-  // 맵 경계표시 메서드
+  // ë§µ ê²½ê³íì ë©ìë
   createMapBoundaryIndicators() {
-    // 맵 경계선 그리기
+    // ë§µ ê²½ê³ì  ê·¸ë¦¬ê¸°
     const borderGraphics = this.add.graphics();
     borderGraphics.lineStyle(4, 0xff0000, 0.8);
     borderGraphics.strokeRect(0, 0, this.MAP_WIDTH, this.MAP_HEIGHT);
     
-    // 맵 모서리에 표시 추가
+    // ë§µ ëª¨ìë¦¬ì íì ì¶ê°
     const cornerSize = 50;
     const corners = [
       { x: 0, y: 0 },
@@ -282,9 +282,9 @@ export class MainScene extends Phaser.Scene {
       weapon.update();
     });
     
-    // 배경 타일 스프라이트 업데이트 - 카메라 위치에 따라 타일 오프셋 조정
+    // ë°°ê²½ íì¼ ì¤íë¼ì´í¸ ìë°ì´í¸ - ì¹´ë©ë¼ ìì¹ì ë°ë¼ íì¼ ì¤íì ì¡°ì 
     if (this.backgroundTile) {
-      // 카메라 위치에 따라 타일 오프셋 조정
+      // ì¹´ë©ë¼ ìì¹ì ë°ë¼ íì¼ ì¤íì ì¡°ì 
       this.backgroundTile.tilePositionX = this.cameras.main.scrollX * 0.3;
       this.backgroundTile.tilePositionY = this.cameras.main.scrollY * 0.3;
     }
@@ -318,7 +318,7 @@ export class MainScene extends Phaser.Scene {
       let x = this.player.x + Math.cos(angle) * distance;
       let y = this.player.y + Math.sin(angle) * distance;
       
-      // 맵 경계 내에 생성되도록 좌표 조정
+      // ë§µ ê²½ê³ ë´ì ìì±ëëë¡ ì¢í ì¡°ì 
       x = Phaser.Math.Clamp(x, 50, this.MAP_WIDTH - 50);
       y = Phaser.Math.Clamp(y, 50, this.MAP_HEIGHT - 50);
       
