@@ -13,9 +13,6 @@ export class ChapterSelectScene extends Phaser.Scene {
     this.load.image('chapter-1', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/ui/thumbnail_chapter/chapter_01.png');
     this.load.image('chapter-2', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/ui/thumbnail_chapter/chapter_02.png');
     this.load.image('chapter-3', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/ui/thumbnail_chapter/chapter_03.png');
-    
-    // 프레임 이미지 로드
-    this.load.image('frame', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/ui/frame/bg_frame_02.png');
   }
 
   create() {

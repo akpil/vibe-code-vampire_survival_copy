@@ -6,19 +6,10 @@ import { ButtonFactory } from '../utils/ButtonFactory';
 
 export class CharacterSelectScene extends Phaser.Scene {
   private selectedChapter: number = 1;
+  private characterFrames: Record<CharacterType, string[]> = {} as Record<CharacterType, string[]>;
   
   constructor() {
     super({ key: SceneKeys.CHARACTER_SELECT });
-  }
-  
-  preload() {
-    // 캐릭터 프리뷰 이미지 로드 (실제 게임에서는 스프라이트시트에서 추출)
-    this.load.image('warrior-preview', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/characters/warrior_preview.png');
-    this.load.image('mage-preview', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/characters/mage_preview.png');
-    this.load.image('archer-preview', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/characters/archer_preview.png');
-    
-    // 프레임 이미지 로드
-    this.load.image('frame', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/ui/frame/bg_frame_02.png');
   }
   
   init(data: any) {
@@ -29,6 +20,11 @@ export class CharacterSelectScene extends Phaser.Scene {
   create() {
     // 씬 변경 이벤트 발생
     gameEvents.emit('scene-changed', SceneKeys.CHARACTER_SELECT);
+    
+    console.log('CharacterSelectScene: create started');
+    
+    // 텍스처 로드 확인
+    this.checkTextures();
     
     // 배경 설정
     const bg = this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0x000033);
@@ -62,35 +58,35 @@ export class CharacterSelectScene extends Phaser.Scene {
     );
     chapterText.setOrigin(0.5);
     
+    // 캐릭터 프레임 정보 가져오기
+    this.prepareCharacterFrames();
+    
     // 캐릭터 카드 생성
     this.createCharacterCard(
       this.cameras.main.centerX - 250,
       this.cameras.main.centerY + 30,
-      'warrior-preview',
+      CharacterType.WARRIOR,
       '전사',
       '근접 공격 전문가',
-      '체력: 높음\n공격력: 중간\n속도: 낮음',
-      CharacterType.WARRIOR
+      '체력: 높음\n공격력: 중간\n속도: 낮음'
     );
     
     this.createCharacterCard(
       this.cameras.main.centerX,
       this.cameras.main.centerY + 30,
-      'mage-preview',
+      CharacterType.MAGE,
       '마법사',
       '원거리 공격 전문가',
-      '체력: 낮음\n공격력: 높음\n속도: 중간',
-      CharacterType.MAGE
+      '체력: 낮음\n공격력: 높음\n속도: 중간'
     );
     
     this.createCharacterCard(
       this.cameras.main.centerX + 250,
       this.cameras.main.centerY + 30,
-      'archer-preview',
+      CharacterType.ARCHER,
       '궁수',
       '빠른 공격 전문가',
-      '체력: 중간\n공격력: 중간\n속도: 높음',
-      CharacterType.ARCHER
+      '체력: 중간\n공격력: 중간\n속도: 높음'
     );
     
     // 뒤로 가기 버튼 - ButtonFactory 사용
@@ -106,17 +102,121 @@ export class CharacterSelectScene extends Phaser.Scene {
       150,
       50
     );
+    
+    console.log('CharacterSelectScene: create completed');
   }
   
-  createCharacterCard(x: number, y: number, imageKey: string, title: string, description: string, stats: string, characterType: CharacterType) {
+  // 텍스처 로드 확인
+  checkTextures() {
+    console.log('CharacterSelectScene - Checking textures:');
+    console.log('- frame:', this.textures.exists('frame'));
+    console.log('- btn-red:', this.textures.exists('btn-red'));
+    console.log('- btn-blue:', this.textures.exists('btn-blue'));
+    console.log('- characters:', this.textures.exists('characters'));
+    
+    // 텍스처가 없는 경우 폴백 생성
+    if (!this.textures.exists('frame')) {
+      this.createFallbackFrame();
+    }
+    
+    if (!this.textures.exists('btn-red')) {
+      this.createFallbackButton('btn-red', 0xe74c3c);
+    }
+    
+    if (!this.textures.exists('btn-blue')) {
+      this.createFallbackButton('btn-blue', 0x3498db);
+    }
+  }
+  
+  // 폴백 프레임 생성
+  createFallbackFrame() {
+    console.log('Creating fallback frame');
+    const graphics = this.make.graphics({ x: 0, y: 0 });
+    
+    // 프레임 배경
+    graphics.fillStyle(0x333333, 0.8);
+    graphics.fillRoundedRect(0, 0, 200, 300, 10);
+    
+    // 프레임 테두리
+    graphics.lineStyle(4, 0x666666, 1);
+    graphics.strokeRoundedRect(0, 0, 200, 300, 10);
+    
+    // 텍스처 생성
+    graphics.generateTexture('frame', 200, 300);
+    graphics.destroy();
+  }
+  
+  // 폴백 버튼 생성
+  createFallbackButton(key: string, color: number) {
+    console.log(`Creating fallback button: ${key}`);
+    const graphics = this.make.graphics({ x: 0, y: 0 });
+    
+    // 버튼 배경
+    graphics.fillStyle(color);
+    graphics.fillRoundedRect(0, 0, 180, 60, 10);
+    
+    // 버튼 테두리
+    graphics.lineStyle(2, 0xffffff, 1);
+    graphics.strokeRoundedRect(0, 0, 180, 60, 10);
+    
+    // 텍스처 생성
+    graphics.generateTexture(key, 180, 60);
+    graphics.destroy();
+  }
+  
+  // 캐릭터 프레임 정보 준비
+  prepareCharacterFrames() {
+    if (this.textures.exists('characters')) {
+      const frames = this.textures.get('characters').getFrameNames();
+      
+      // 각 캐릭터 타입별로 프레임 필터링
+      Object.values(CharacterType).forEach(type => {
+        this.characterFrames[type] = frames.filter(frame => frame.includes(`cha_${type}_`));
+      });
+      
+      console.log('Character frames prepared:', this.characterFrames);
+    } else {
+      console.error('Characters texture not loaded in CharacterSelectScene');
+    }
+  }
+  
+  createCharacterCard(x: number, y: number, characterType: CharacterType, title: string, description: string, stats: string) {
     // 프레임 배경
     const frame = this.add.image(x, y, 'frame');
     frame.setDisplaySize(200, 300);
     frame.setTint(0x888888);
     
-    // 캐릭터 프리뷰 이미지
-    const characterImage = this.add.image(x, y - 70, imageKey);
-    characterImage.setDisplaySize(160, 160);
+    // 캐릭터 프리뷰 이미지 (스프라이트 아틀라스에서)
+    let characterImage;
+    
+    if (this.characterFrames[characterType] && this.characterFrames[characterType].length > 0) {
+      // 스프라이트 아틀라스에서 첫 번째 프레임 사용
+      characterImage = this.add.image(x, y - 70, 'characters', this.characterFrames[characterType][0]);
+      characterImage.setDisplaySize(160, 160);
+      
+      // 애니메이션 설정
+      const animKey = `${characterType}_select`;
+      
+      if (!this.anims.exists(animKey) && this.characterFrames[characterType].length >= 2) {
+        this.anims.create({
+          key: animKey,
+          frames: this.anims.generateFrameNames('characters', {
+            frames: this.characterFrames[characterType].slice(0, Math.min(4, this.characterFrames[characterType].length))
+          }),
+          frameRate: 8,
+          repeat: -1
+        });
+        
+        // 스프라이트로 변환하여 애니메이션 재생
+        characterImage.destroy();
+        characterImage = this.add.sprite(x, y - 70, 'characters', this.characterFrames[characterType][0]);
+        characterImage.setDisplaySize(160, 160);
+        characterImage.play(animKey);
+      }
+    } else {
+      // 폴백: 색상 있는 사각형으로 표시
+      characterImage = this.add.rectangle(x, y - 70, 160, 160, this.getColorForCharacter(characterType));
+    }
     
     // 캐릭터 이름
     const titleText = this.add.text(
@@ -200,5 +300,23 @@ export class CharacterSelectScene extends Phaser.Scene {
     });
     
     return frame;
+  }
+  
+  // 캐릭터 타입에 따른 색상 반환 (폴백용)
+  getColorForCharacter(type: CharacterType): number {
+    switch (type) {
+      case CharacterType.WARRIOR:
+        return 0xff0000;
+      case CharacterType.MAGE:
+        return 0x0000ff;
+      case CharacterType.ARCHER:
+        return 0x00ff00;
+      case CharacterType.PRIEST:
+        return 0xffff00;
+      case CharacterType.GHOST:
+        return 0xaaaaaa;
+      default:
+        return 0xffffff;
+    }
   }
 }

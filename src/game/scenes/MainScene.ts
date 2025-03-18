@@ -50,7 +50,7 @@ export class MainScene extends Phaser.Scene {
     
     console.log('MainScene create method started');
     
-    // 월드 경계 설정 - 맵 크기 확장
+    // 월드 경계설정 - 맵 크기 확장
     this.physics.world.setBounds(0, 0, this.MAP_WIDTH, this.MAP_HEIGHT);
     
     // 텍스처 로딩 확인
@@ -153,49 +153,91 @@ export class MainScene extends Phaser.Scene {
 
   // 텍스처 로딩 확인
   checkTextures() {
-    console.log('Checking textures:');
+    console.log('MainScene - Checking textures:');
     console.log('- characters:', this.textures.exists('characters'));
-    console.log('- player:', this.textures.exists('player'));
     console.log('- background-tile:', this.textures.exists('background-tile'));
+    console.log('- knife:', this.textures.exists('knife'));
+    console.log('- axe:', this.textures.exists('axe'));
+    console.log('- magic:', this.textures.exists('magic'));
+    console.log('- xp-gem:', this.textures.exists('xp-gem'));
     
     if (this.textures.exists('characters')) {
       const frames = this.textures.get('characters').getFrameNames();
-      console.log('Characters frames:', frames);
+      console.log('Characters frames count:', frames.length);
     }
+    
+    // 배경 타일 텍스처가 없는 경우 폴백 생성
+    if (!this.textures.exists('background-tile')) {
+      this.createFallbackBackgroundTile();
+    }
+  }
+  
+  // 폴백 배경 타일 생성
+  createFallbackBackgroundTile() {
+    console.log('Creating fallback background tile');
+    const graphics = this.make.graphics({ x: 0, y: 0 });
+    
+    // 배경 타일 패턴 생성
+    graphics.fillStyle(0x0a0a20);
+    graphics.fillRect(0, 0, 64, 64);
+    
+    // 격자 패턴 추가
+    graphics.lineStyle(1, 0x1a1a40);
+    graphics.strokeRect(0, 0, 64, 64);
+    graphics.lineBetween(0, 32, 64, 32);
+    graphics.lineBetween(32, 0, 32, 64);
+    
+    // 텍스처 생성
+    graphics.generateTexture('background-tile', 64, 64);
+    graphics.destroy();
   }
 
   createBackground() {
-    // 배경 타일 스프라이트 생성 - 전체 맵 크기를 커버하도록 수정
+    // 배경 타일 스프라이트 생성 - 전체 맵 크기를 커버하도록 설정
     if (this.textures.exists('background-tile')) {
-      // 배경 타일 스프라이트를 카메라 뷰포트 중앙에 위치시키고 맵 전체를 커버하도록 설정
+      console.log('Creating background tile sprite');
+      
+      // 배경 타일 스프라이트를 카메라 뷰포트 중심에 위치시키고 맵 전체를 커버하도록 설정
       this.backgroundTile = this.add.tileSprite(
-        this.MAP_WIDTH / 2, 
-        this.MAP_HEIGHT / 2,
-        this.MAP_WIDTH, 
-        this.MAP_HEIGHT,
+        0, 
+        0,
+        this.cameras.main.width, 
+        this.cameras.main.height,
         'background-tile'
       );
-      this.backgroundTile.setOrigin(0.5, 0.5);
-      this.backgroundTile.setScrollFactor(0); // 스크롤 팩터를 0으로 설정하여 카메라와 함께 움직이지 않도록 함
+      
+      // 원점을 좌상단으로 설정
+      this.backgroundTile.setOrigin(0, 0);
+      
+      // 스크롤 팩터를 0으로 설정하여 카메라와 함께 움직이지 않도록 함
+      this.backgroundTile.setScrollFactor(0);
+      
+      console.log('Background tile created:', {
+        x: this.backgroundTile.x,
+        y: this.backgroundTile.y,
+        width: this.backgroundTile.width,
+        height: this.backgroundTile.height,
+        visible: this.backgroundTile.visible
+      });
     } else {
       console.error('Background tile texture not found');
       // 대체 배경 생성
       const bg = this.add.rectangle(
-        this.MAP_WIDTH / 2, 
-        this.MAP_HEIGHT / 2,
-        this.MAP_WIDTH,
-        this.MAP_HEIGHT,
+        0, 
+        0,
+        this.cameras.main.width,
+        this.cameras.main.height,
         0x0a0a20
       );
-      bg.setOrigin(0.5, 0.5);
+      bg.setOrigin(0, 0);
       bg.setScrollFactor(0);
     }
     
-    // 맵 경계 표시 (디버깅 및 시각적 피드백용)
+    // 맵 경계표시 (디버깅 및 시각적 피드백용)
     this.createMapBoundaryIndicators();
   }
   
-  // 맵 경계 표시 메서드
+  // 맵 경계표시 메서드
   createMapBoundaryIndicators() {
     // 맵 경계선 그리기
     const borderGraphics = this.add.graphics();

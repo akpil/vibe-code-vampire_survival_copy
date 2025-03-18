@@ -1,147 +1,143 @@
 import Phaser from 'phaser';
-import { generatePlayerSprite, generateEnemySprite, generateWeaponSprite, generateGemSprite } from '../utils/spriteGenerator';
-import { gameEvents } from '../events';
 import { SceneKeys } from '../types/SceneKeys';
+import { generatePlayerSprite, generateEnemySprite, generateWeaponSprite, generateGemSprite } from '../utils/spriteGenerator';
 
 export class BootScene extends Phaser.Scene {
-  private assetsLoaded: boolean = false;
-
   constructor() {
     super({ key: SceneKeys.BOOT });
   }
 
   preload() {
-    // Generate fallback sprites first (will be used if atlas loading fails)
-    generatePlayerSprite(this);
-    generateEnemySprite(this, 'enemy1', '#e74c3c');
-    generateEnemySprite(this, 'enemy2', '#f39c12');
-    generateEnemySprite(this, 'enemy3', '#c0392b');
-    generateWeaponSprite(this, 'knife', '#f1c40f');
-    generateWeaponSprite(this, 'axe', '#2ecc71');
-    generateWeaponSprite(this, 'magic', '#3498db');
-    generateGemSprite(this);
+    console.log('BootScene: preload started');
     
-    // 로딩 화면 표시 (선택 사항)
-    const width = this.cameras.main.width;
-    const height = this.cameras.main.height;
+    // 배경 타일 로드
+    this.load.image('background-tile', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/background_tile/tile.png');
     
-    const progressBar = this.add.graphics();
-    const progressBox = this.add.graphics();
-    progressBox.fillStyle(0x222222, 0.8);
-    progressBox.fillRect(width / 2 - 160, height / 2 - 25, 320, 50);
+    // 타이틀 배경 이미지 로드
+    this.load.image('bg-title', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/ui/bg_title.png');
     
-    // 로딩 텍스트
-    const loadingText = this.add.text(width / 2, height / 2 - 50, '로딩 중...', {
-      font: '20px monospace',
-      color: '#ffffff'
-    }).setOrigin(0.5, 0.5);
+    // 버튼 이미지 로드
+    this.load.image('btn-blue', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/ui/buttons/btn_blue.png');
+    this.load.image('btn-red', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/ui/buttons/btn_red.png');
+    this.load.image('btn-green', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/ui/buttons/btn_green.png');
     
-    // 진행률 텍스트
-    const percentText = this.add.text(width / 2, height / 2, '0%', {
-      font: '18px monospace',
-      color: '#ffffff'
-    }).setOrigin(0.5, 0.5);
+    // 프레임 이미지 로드
+    this.load.image('frame', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/ui/frame/bg_frame_02.png');
     
-    // 로딩 진행 상황 표시
-    this.load.on('progress', (value: number) => {
-      percentText.setText(Math.floor(value * 100) + '%');
-      progressBar.clear();
-      progressBar.fillStyle(0xffffff, 1);
-      progressBar.fillRect(width / 2 - 150, height / 2 - 15, 300 * value, 30);
-      console.log(`로딩 진행률: ${Math.floor(value * 100)}%`);
-    });
+    // 경험치 젬 아이콘 로드
+    this.load.image('xp-gem', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/ingame_icon/icon_exp.png');
     
-    // 로딩 완료 시 UI 제거
-    this.load.on('complete', () => {
-      progressBar.destroy();
-      progressBox.destroy();
-      loadingText.destroy();
-      percentText.destroy();
-      this.assetsLoaded = true;
-      console.log('All assets loaded successfully');
-      
-      // 로드 완료 후 사용 가능한 프레임 확인
-      this.checkLoadedAssets();
-      
-      gameEvents.emit('assets-loaded');
-    });
+    // 무기 아이콘 로드 - 프로젝타일 방식
+    this.load.image('knife', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/projectile/sword.png');
+    this.load.image('axe', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/projectile/axe.png');
+    this.load.image('magic', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/effectSheet/whip.png');
     
-    // 로딩 오류 처리
-    this.load.on('loaderror', (file: any) => {
-      console.error('로딩 오류:', file.src);
-      
-      // 로딩 오류 발생 시 대체 텍스처 사용 알림
-      gameEvents.emit('assets-load-error');
-      
-      // 오류 메시지 표시
-      this.add.text(width / 2, height / 2 + 50, '자원 로딩 오류 발생!', {
-        font: '16px monospace',
-        color: '#ff0000'
-      }).setOrigin(0.5, 0.5);
-    });
-    
-    // 캐릭터 스프라이트 아틀라스 로드 - 외부 경로 사용
+    // 캐릭터 스프라이트 아틀라스 로드 - 아틀라스 방식
     this.load.atlas(
       'characters', 
-      'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/cha_sprite.png', 
+      'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/cha_sprite.png',
       'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/cha_sprite_table.json'
     );
     
-    // 배경 타일 로드
-    this.load.image('background-tile', 
-      'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/background_tile/tile.png'
-    );
-  }
-
-  checkLoadedAssets() {
-    // 캐릭터 아틀라스 로드 확인
-    if (this.textures.exists('characters')) {
-      console.log('Characters atlas loaded successfully');
-      const frames = this.textures.get('characters').getFrameNames();
-      console.log('Available frames:', frames);
-      
-      // 프레임 이름 패턴 분석
-      const patterns = {};
-      frames.forEach(frame => {
-        const parts = frame.split('_');
-        if (parts.length >= 3) {
-          const prefix = parts[0];
-          const type = parts[1];
-          if (!patterns[type]) {
-            patterns[type] = [];
-          }
-          patterns[type].push(frame);
-        }
-      });
-      
-      console.log('Frame patterns by character type:', patterns);
-      
-      // 첫 번째 프레임의 크기 확인
-      if (frames.length > 0) {
-        const frame = this.textures.getFrame('characters', frames[0]);
-        console.log('First frame dimensions:', frame.width, frame.height);
-      }
-      
-      // 테스트용 스프라이트 표시 (제거)
-      // 로드 완료 후 타이틀 씬으로 전환
-      this.time.delayedCall(1000, () => {
-        this.scene.start(SceneKeys.TITLE);
-      });
-    } else {
-      console.error('Characters atlas failed to load');
-      // 로드 실패 시 타이틀 씬으로 전환
-      this.scene.start(SceneKeys.TITLE);
-    }
-    
-    // 배경 타일 로드 확인
-    if (this.textures.exists('background-tile')) {
-      console.log('Background tile loaded successfully');
-    } else {
-      console.error('Background tile failed to load');
-    }
+    console.log('BootScene: preload completed');
   }
 
   create() {
-    // 이미 로드 완료 이벤트에서 처리했으므로 여기에는 추가 작업 없음
+    console.log('BootScene: create started');
+    
+    // 텍스처가 로드되지 않은 경우에만 프로그래매틱 텍스처 생성
+    if (!this.textures.exists('enemy1')) {
+      generateEnemySprite(this, 'enemy1', '#e74c3c');
+    }
+    
+    if (!this.textures.exists('enemy2')) {
+      generateEnemySprite(this, 'enemy2', '#e67e22');
+    }
+    
+    if (!this.textures.exists('enemy3')) {
+      generateEnemySprite(this, 'enemy3', '#9b59b6');
+    }
+    
+    // 캐릭터 애니메이션 생성
+    this.createCharacterAnimations();
+    
+    // 텍스처 로드 확인
+    this.checkLoadedTextures();
+    
+    console.log('BootScene: create completed');
+    
+    // 타이틀 씬으로 전환
+    this.scene.start(SceneKeys.TITLE);
+  }
+  
+  checkLoadedTextures() {
+    console.log('Checking loaded textures:');
+    
+    // characters 아틀라스 확인
+    if (this.textures.exists('characters')) {
+      const frames = this.textures.get('characters').getFrameNames();
+      console.log('Characters atlas loaded with frames:', frames.length);
+      console.log('Sample frames:', frames.slice(0, 5));
+    } else {
+      console.error('Characters atlas not loaded!');
+    }
+    
+    // 배경 및 UI 텍스처 확인
+    console.log('Background tile loaded:', this.textures.exists('background-tile'));
+    console.log('Title background loaded:', this.textures.exists('bg-title'));
+    console.log('Blue button loaded:', this.textures.exists('btn-blue'));
+    console.log('Red button loaded:', this.textures.exists('btn-red'));
+    console.log('Green button loaded:', this.textures.exists('btn-green'));
+    console.log('Frame loaded:', this.textures.exists('frame'));
+    
+    // 무기 텍스처 확인
+    console.log('Knife texture loaded:', this.textures.exists('knife'));
+    console.log('Axe texture loaded:', this.textures.exists('axe'));
+    console.log('Magic texture loaded:', this.textures.exists('magic'));
+    
+    // 경험치 젬 텍스처 확인
+    console.log('XP Gem texture loaded:', this.textures.exists('xp-gem'));
+  }
+  
+  createCharacterAnimations() {
+    // 캐릭터 타입별 애니메이션 프레임 정의
+    const characterTypes = ['warrior', 'mage', 'priest', 'ghost'];
+    
+    // 텍스처가 로드되었는지 확인
+    if (!this.textures.exists('characters')) {
+      console.error('Cannot create character animations: characters atlas not loaded');
+      return;
+    }
+    
+    const frames = this.textures.get('characters').getFrameNames();
+    console.log('Available frames for animations:', frames);
+    
+    // 각 캐릭터 타입별로 애니메이션 생성
+    characterTypes.forEach(type => {
+      // 해당 타입의 프레임 필터링
+      const typeFrames = frames.filter(frame => frame.includes(`cha_${type}_`));
+      
+      if (typeFrames.length > 0) {
+        console.log(`Creating animations for ${type} with frames:`, typeFrames);
+        
+        // 걷기 애니메이션
+        this.anims.create({
+          key: `${type}_walk`,
+          frames: typeFrames.map(frame => ({ key: 'characters', frame })),
+          frameRate: 8,
+          repeat: -1
+        });
+        
+        // 대기 애니메이션 (첫 번째 프레임만 사용)
+        this.anims.create({
+          key: `${type}_idle`,
+          frames: [{ key: 'characters', frame: typeFrames[0] }],
+          frameRate: 1,
+          repeat: 0
+        });
+      } else {
+        console.error(`No frames found for character type: ${type}`);
+      }
+    });
   }
 }

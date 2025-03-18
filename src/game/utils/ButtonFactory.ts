@@ -30,6 +30,12 @@ export class ButtonFactory {
     fontSize: string = '20px',
     depth: number = 100
   ): Phaser.GameObjects.Image {
+    // 이미지 키가 존재하는지 확인
+    if (!scene.textures.exists(imageKey)) {
+      // 폴백 버튼 생성
+      ButtonFactory.createFallbackButton(scene, imageKey);
+    }
+    
     // 버튼 이미지 생성
     const button = scene.add.image(x, y, imageKey);
     button.setDisplaySize(width, height);
@@ -88,6 +94,12 @@ export class ButtonFactory {
     fontSize: string = '20px',
     depth: number = 1000
   ): { button: Phaser.GameObjects.Image, text: Phaser.GameObjects.Text } {
+    // 이미지 키가 존재하는지 확인
+    if (!scene.textures.exists(imageKey)) {
+      // 폴백 버튼 생성
+      ButtonFactory.createFallbackButton(scene, imageKey);
+    }
+    
     // 버튼 이미지 생성
     const button = scene.add.image(x, y, imageKey);
     button.setDisplaySize(width, height);
@@ -120,5 +132,38 @@ export class ButtonFactory {
     });
     
     return { button, text: buttonText };
+  }
+  
+  /**
+   * 폴백 버튼 텍스처 생성 (이미지 로드 실패 시)
+   * @param scene 텍스처를 생성할 씬
+   * @param key 생성할 텍스처 키
+   */
+  static createFallbackButton(scene: Phaser.Scene, key: string) {
+    console.log(`Creating fallback button texture: ${key}`);
+    const graphics = scene.make.graphics({ x: 0, y: 0 });
+    
+    // 버튼 색상 결정
+    let color = 0x3498db; // 기본 파란색
+    
+    if (key.includes('blue')) {
+      color = 0x3498db; // 파란색
+    } else if (key.includes('red')) {
+      color = 0xe74c3c; // 빨간색
+    } else if (key.includes('green')) {
+      color = 0x2ecc71; // 초록색
+    }
+    
+    // 버튼 배경
+    graphics.fillStyle(color);
+    graphics.fillRoundedRect(0, 0, 180, 60, 10);
+    
+    // 버튼 테두리
+    graphics.lineStyle(2, 0xffffff, 1);
+    graphics.strokeRoundedRect(0, 0, 180, 60, 10);
+    
+    // 텍스처 생성
+    graphics.generateTexture(key, 180, 60);
+    graphics.destroy();
   }
 }

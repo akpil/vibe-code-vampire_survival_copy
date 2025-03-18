@@ -21,8 +21,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private invincibilityDuration: number = 1000; // 1초 동안 무적
   
   constructor(scene: Phaser.Scene, x: number, y: number, characterType: CharacterType = CharacterType.WARRIOR) {
-    // 스프라이트 생성 - 기본 텍스처로 생성하고 나중에 프레임 설정
-    super(scene, x, y, 'player');
+    // 아틀라스에서 캐릭터 타입에 맞는 첫 번째 프레임으로 초기화
+    super(scene, x, y, 'characters');
     this.characterType = characterType;
     
     scene.add.existing(this);
@@ -41,33 +41,82 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.body.setSize(20, 20);
     this.body.setOffset(6, 12);
     
-    // 텍스처가 로드되었는지 확인 후 애니메이션 설정
-    if (scene.textures.exists('characters')) {
-      const frames = scene.textures.get('characters').getFrameNames();
-      console.log('Available frames for player:', frames);
-      
-      // 프레임이 존재하는지 확인
-      const typeFrames = frames.filter(frame => frame.includes(`cha_${characterType}_`));
-      
-      if (typeFrames.length > 0) {
-        this.usingFallbackSprite = false;
-        this.setTexture('characters', typeFrames[0]);
-        console.log(`Using character sprite: ${typeFrames[0]}`);
-        this.setupAnimations(typeFrames);
-      } else {
-        console.error(`No frames found for character type: ${characterType}, using fallback`);
-        this.usingFallbackSprite = true;
-      }
-    } else {
-      console.error('Characters texture not loaded, using fallback');
-      this.usingFallbackSprite = true;
-    }
+    // 아틀라스 텍스처 설정
+    this.setupCharacterSprite();
     
     // 캐릭터 타입에 따른 초기 능력치 설정
     this.setupCharacterStats();
     
     // Set up initial weapon
     this.setupInitialWeapon();
+  }
+  
+  // 캐릭터 스프라이트 설정
+  setupCharacterSprite() {
+    if (this.scene.textures.exists('characters')) {
+      const frames = this.scene.textures.get('characters').getFrameNames();
+      console.log('Available frames for player:', frames);
+      
+      // 캐릭터 타입에 맞는 프레임 찾기
+      const typePrefix = `cha_${this.characterType}_`;
+      const typeFrames = frames.filter(frame => frame.includes(typePrefix));
+      
+      if (typeFrames.length > 0) {
+        this.usingFallbackSprite = false;
+        // 첫 번째 프레임으로 텍스처 설정
+        this.setTexture('characters', typeFrames[0]);
+        console.log(`Using character sprite: ${typeFrames[0]}`);
+      } else {
+        console.error(`No frames found for character type: ${this.characterType}, using fallback`);
+        this.usingFallbackSprite = true;
+        // 폴백 스프라이트 생성
+        this.createFallbackSprite();
+      }
+    } else {
+      console.error('Characters texture not loaded, using fallback');
+      this.usingFallbackSprite = true;
+      // 폴백 스프라이트 생성
+      this.createFallbackSprite();
+    }
+  }
+  
+  // 폴백 스프라이트 생성 (텍스처 로드 실패 시)
+  createFallbackSprite() {
+    const graphics = this.scene.make.graphics({ x: 0, y: 0 });
+    
+    // 캐릭터 타입에 따라 다른 색상 사용
+    let color = 0x3498db; // 기본 파란색
+    
+    switch (this.characterType) {
+      case CharacterType.WARRIOR:
+        color = 0xe74c3c; // 빨간색
+        break;
+      case CharacterType.MAGE:
+        color = 0x9b59b6; // 보라색
+        break;
+      case CharacterType.PRIEST:
+        color = 0xf1c40f; // 노란색
+        break;
+      case CharacterType.GHOST:
+        color = 0x1abc9c; // 청록색
+        break;
+    }
+    
+    // 원형 캐릭터 그리기
+    graphics.fillStyle(color);
+    graphics.fillCircle(16, 16, 14);
+    
+    // 테두리 추가
+    graphics.lineStyle(2, 0xffffff, 1);
+    graphics.strokeCircle(16, 16, 14);
+    
+    // 텍스처 생성
+    const textureName = `player_${this.characterType}_fallback`;
+    graphics.generateTexture(textureName, 32, 32);
+    graphics.destroy();
+    
+    // 생성된 텍스처 적용
+    this.setTexture(textureName);
   }
   
   // 캐릭터 타입에 따른 초기 능력치 설정
@@ -152,66 +201,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
           cooldown: 500,
           lastFired: 0
         });
-    }
-  }
-
-  // 애니메이션 설정
-  setupAnimations(typeFrames: string[]) {
-    const type = this.characterType;
-    
-    if (typeFrames.length === 0) {
-      console.error(`No frames found for character type: ${type}`);
-      return;
-    }
-    
-    // 이미 애니메이션이 존재하는지 확인
-    const walkKey = `${type}_walk`;
-    const idleKey = `${type}_idle`;
-    
-    if (!this.scene.anims.exists(walkKey)) {
-      // 걷기 애니메이션 생성
-      try {
-        this.scene.anims.create({
-          key: walkKey,
-          frames: this.scene.anims.generateFrameNames('characters', {
-            frames: typeFrames.slice(0, Math.min(4, typeFrames.length))
-          }),
-          frameRate: 8,
-          repeat: -1
-        });
-        console.log(`Created walk animation: ${walkKey} with frames:`, typeFrames.slice(0, Math.min(4, typeFrames.length)));
-      } catch (error) {
-        console.error(`Error creating walk animation: ${error}`);
-      }
-    }
-    
-    if (!this.scene.anims.exists(idleKey)) {
-      // 대기 애니메이션 생성
-      try {
-        this.scene.anims.create({
-          key: idleKey,
-          frames: this.scene.anims.generateFrameNames('characters', {
-            frames: [typeFrames[0]]
-          }),
-          frameRate: 1,
-          repeat: 0
-        });
-        console.log(`Created idle animation: ${idleKey} with frame: ${typeFrames[0]}`);
-      } catch (error) {
-        console.error(`Error creating idle animation: ${error}`);
-      }
-    }
-    
-    // 초기 애니메이션 재생 시도
-    try {
-      if (this.scene.anims.exists(idleKey)) {
-        this.play(idleKey);
-        console.log(`Playing animation: ${idleKey}`);
-      } else {
-        console.error(`Animation ${idleKey} does not exist`);
-      }
-    } catch (error) {
-      console.error(`Error playing animation: ${error}`);
     }
   }
 

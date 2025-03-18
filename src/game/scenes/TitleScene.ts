@@ -8,20 +8,14 @@ export class TitleScene extends Phaser.Scene {
     super({ key: SceneKeys.TITLE });
   }
 
-  preload() {
-    // 타이틀 배경 이미지 로드
-    this.load.image('bg-title', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/ui/bg_title.png');
-    
-    // 버튼 이미지 로드
-    this.load.image('btn-blue', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/ui/buttons/btn_blue.png');
-    this.load.image('btn-green', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/ui/buttons/btn_green.png');
-    this.load.image('btn-red', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/ui/buttons/btn_red.png');
-    this.load.image('btn-black', 'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/ui/buttons/btn_black.png');
-  }
-
   create() {
     // 씬 변경 이벤트 발생
     gameEvents.emit('scene-changed', SceneKeys.TITLE);
+    
+    console.log('TitleScene: create started');
+    
+    // 텍스처 로드 확인
+    this.checkTextures();
     
     // 배경 이미지 추가
     const bg = this.add.image(0, 0, 'bg-title');
@@ -98,5 +92,78 @@ export class TitleScene extends Phaser.Scene {
         color: '#ffffff'
       }
     );
+    
+    console.log('TitleScene: create completed');
+  }
+  
+  // 텍스처 로드 확인
+  checkTextures() {
+    console.log('TitleScene - Checking textures:');
+    console.log('- bg-title:', this.textures.exists('bg-title'));
+    console.log('- btn-blue:', this.textures.exists('btn-blue'));
+    console.log('- btn-green:', this.textures.exists('btn-green'));
+    console.log('- btn-red:', this.textures.exists('btn-red'));
+    
+    // 텍스처가 없는 경우 폴백 생성
+    if (!this.textures.exists('bg-title')) {
+      this.createFallbackBackground();
+    }
+    
+    if (!this.textures.exists('btn-blue')) {
+      this.createFallbackButton('btn-blue', 0x3498db);
+    }
+    
+    if (!this.textures.exists('btn-green')) {
+      this.createFallbackButton('btn-green', 0x2ecc71);
+    }
+    
+    if (!this.textures.exists('btn-red')) {
+      this.createFallbackButton('btn-red', 0xe74c3c);
+    }
+  }
+  
+  // 폴백 배경 생성
+  createFallbackBackground() {
+    console.log('Creating fallback background');
+    const graphics = this.make.graphics({ x: 0, y: 0 });
+    
+    // 그라데이션 배경
+    const width = 800;
+    const height = 600;
+    
+    graphics.fillGradientStyle(0x000033, 0x000033, 0x000066, 0x000066, 1);
+    graphics.fillRect(0, 0, width, height);
+    
+    // 별 추가
+    for (let i = 0; i < 100; i++) {
+      const x = Math.random() * width;
+      const y = Math.random() * height;
+      const size = Math.random() * 2 + 1;
+      
+      graphics.fillStyle(0xffffff, Math.random() * 0.5 + 0.5);
+      graphics.fillCircle(x, y, size);
+    }
+    
+    // 텍스처 생성
+    graphics.generateTexture('bg-title', width, height);
+    graphics.destroy();
+  }
+  
+  // 폴백 버튼 생성
+  createFallbackButton(key: string, color: number) {
+    console.log(`Creating fallback button: ${key}`);
+    const graphics = this.make.graphics({ x: 0, y: 0 });
+    
+    // 버튼 배경
+    graphics.fillStyle(color);
+    graphics.fillRoundedRect(0, 0, 180, 60, 10);
+    
+    // 버튼 테두리
+    graphics.lineStyle(2, 0xffffff, 1);
+    graphics.strokeRoundedRect(0, 0, 180, 60, 10);
+    
+    // 텍스처 생성
+    graphics.generateTexture(key, 180, 60);
+    graphics.destroy();
   }
 }

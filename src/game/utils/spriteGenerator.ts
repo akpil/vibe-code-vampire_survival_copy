@@ -4,7 +4,7 @@ import Phaser from 'phaser';
 export function generatePlayerSprite(scene: Phaser.Scene) {
   const graphics = scene.make.graphics({ x: 0, y: 0 });
   
-  // Draw player character - ë ë°ì ììì¼ë¡ ë³ê²½
+  // Draw player character - Ã«ÂÂ Ã«Â°ÂÃ¬ÂÂ Ã¬ÂÂÃ¬ÂÂÃ¬ÂÂ¼Ã«Â¡Â Ã«Â³ÂÃªÂ²Â½
   graphics.fillStyle(0x3498db);
   graphics.fillCircle(16, 16, 14);
   
@@ -12,7 +12,7 @@ export function generatePlayerSprite(scene: Phaser.Scene) {
   graphics.fillStyle(0x2980b9);
   graphics.fillCircle(16, 16, 8);
   
-  // íëë¦¬ ì¶ê°
+  // Ã­ÂÂÃ«ÂÂÃ«Â¦Â¬ Ã¬Â¶ÂÃªÂ°Â
   graphics.lineStyle(2, 0xffffff, 1);
   graphics.strokeCircle(16, 16, 14);
   
@@ -34,7 +34,7 @@ export function generateEnemySprite(scene: Phaser.Scene, key: string, color: str
   if (key === 'enemy1') {
     // Square enemy
     graphics.fillRect(4, 4, 24, 24);
-    // íëë¦¬ ì¶ê°
+    // Ã­ÂÂÃ«ÂÂÃ«Â¦Â¬ Ã¬Â¶ÂÃªÂ°Â
     graphics.lineStyle(2, 0xffffff, 1);
     graphics.strokeRect(4, 4, 24, 24);
   } else if (key === 'enemy2') {
@@ -45,7 +45,7 @@ export function generateEnemySprite(scene: Phaser.Scene, key: string, color: str
     graphics.lineTo(4, 28);
     graphics.closePath();
     graphics.fillPath();
-    // íëë¦¬ ì¶ê°
+    // Ã­ÂÂÃ«ÂÂÃ«Â¦Â¬ Ã¬Â¶ÂÃªÂ°Â
     graphics.lineStyle(2, 0xffffff, 1);
     graphics.beginPath();
     graphics.moveTo(16, 4);
@@ -66,7 +66,7 @@ export function generateEnemySprite(scene: Phaser.Scene, key: string, color: str
     graphics.lineTo(10, 14);
     graphics.closePath();
     graphics.fillPath();
-    // íëë¦¬ ì¶ê°
+    // Ã­ÂÂÃ«ÂÂÃ«Â¦Â¬ Ã¬Â¶ÂÃªÂ°Â
     graphics.lineStyle(2, 0xffffff, 1);
     graphics.beginPath();
     graphics.moveTo(16, 4);
@@ -99,7 +99,7 @@ export function generateWeaponSprite(scene: Phaser.Scene, key: string, color: st
     // Knife shape
     graphics.fillRect(12, 4, 8, 24);
     graphics.fillTriangle(12, 4, 20, 4, 16, 0);
-    // íëë¦¬ ì¶ê°
+    // Ã­ÂÂÃ«ÂÂÃ«Â¦Â¬ Ã¬Â¶ÂÃªÂ°Â
     graphics.lineStyle(2, 0xffffff, 1);
     graphics.strokeRect(12, 4, 8, 24);
     graphics.beginPath();
@@ -113,7 +113,7 @@ export function generateWeaponSprite(scene: Phaser.Scene, key: string, color: st
     graphics.fillRect(14, 8, 4, 16);
     graphics.fillTriangle(6, 8, 14, 8, 14, 16);
     graphics.fillTriangle(18, 8, 26, 8, 18, 16);
-    // íëë¦¬ ì¶ê°
+    // Ã­ÂÂÃ«ÂÂÃ«Â¦Â¬ Ã¬Â¶ÂÃªÂ°Â
     graphics.lineStyle(2, 0xffffff, 1);
     graphics.strokeRect(14, 8, 4, 16);
     graphics.beginPath();
@@ -136,7 +136,7 @@ export function generateWeaponSprite(scene: Phaser.Scene, key: string, color: st
     graphics.fillStyle(0xffffff, 0.5);
     graphics.fillCircle(16, 16, 12);
     
-    // íëë¦¬ ì¶ê°
+    // Ã­ÂÂÃ«ÂÂÃ«Â¦Â¬ Ã¬Â¶ÂÃªÂ°Â
     graphics.lineStyle(2, 0xffffff, 1);
     graphics.strokeCircle(16, 16, 8);
   }
@@ -164,7 +164,7 @@ export function generateGemSprite(scene: Phaser.Scene) {
   graphics.fillStyle(0xffffff, 0.7);
   graphics.fillTriangle(12, 8, 16, 4, 20, 8);
   
-  // íëë¦¬ ì¶ê°
+  // Ã­ÂÂÃ«ÂÂÃ«Â¦Â¬ Ã¬Â¶ÂÃªÂ°Â
   graphics.lineStyle(2, 0xffffff, 1);
   graphics.beginPath();
   graphics.moveTo(8, 4);

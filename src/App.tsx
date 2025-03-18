@@ -6,6 +6,7 @@ import { TitleScene } from "./game/scenes/TitleScene";
 import { ChapterSelectScene } from "./game/scenes/ChapterSelectScene";
 import { CharacterSelectScene } from "./game/scenes/CharacterSelectScene";
 import { MainScene } from "./game/scenes/MainScene";
+import { PauseScene } from "./game/scenes/PauseScene";
 import { GameUI } from "./components/GameUI";
 
 function App() {
@@ -40,7 +41,7 @@ function App() {
           gravity: { x: 0, y: 0 }
         }
       },
-      scene: [BootScene, TitleScene, ChapterSelectScene, CharacterSelectScene, MainScene],
+      scene: [BootScene, TitleScene, ChapterSelectScene, CharacterSelectScene, MainScene, PauseScene],
       scale: {
         mode: Phaser.Scale.RESIZE,
         autoCenter: Phaser.Scale.CENTER_BOTH

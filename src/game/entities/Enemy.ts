@@ -10,7 +10,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   private usingFallbackSprite: boolean = false;
   
   constructor(scene: Phaser.Scene, x: number, y: number, type: string, health: number) {
-    // ì  ì íì ë°ë¼ ìºë¦­í° íì ì¤ì 
+    // 적의 종류에 따라 캐릭터 타입 설정
     let characterType: CharacterType;
     
     if (type === 'enemy1') {
@@ -21,7 +21,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       characterType = CharacterType.DEMON;
     }
     
-    // ê¸°ë³¸ íì¤ì²ë¡ ìì±
+    // 기본 텍스처로 생성
     super(scene, x, y, type);
     this.characterType = characterType;
     
@@ -31,7 +31,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.health = health;
     this.maxHealth = health;
     
-    // ì  ì íì ë°ë¼ ìì± ì¡°ì 
+    // 적의 종류에 따라 속성 조정
     if (type === 'enemy2') {
       this.speed = 80;
       this.damage = 15;
@@ -40,15 +40,15 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       this.damage = 20;
     }
     
-    // ë¬¼ë¦¬ ë°ë ì¤ì 
+    // 물리 바디 설정
     this.body.setSize(20, 20);
     this.body.setOffset(6, 12);
     
-    // ì¤íë¼ì´í¸ ì¤ì 
+    // 스프라이트 설정
     this.setScale(1.2);
     this.setDepth(5);
     
-    // íì¤ì²ê° ë¡ëëìëì§ íì¸ í ì ëë©ì´ì ì¤ì 
+    // 텍스처가 로드되었는지 확인 후 애니메이션 설정
     if (scene.textures.exists('characters')) {
       const frames = scene.textures.get('characters').getFrameNames();
       const typeFrames = frames.filter(frame => frame.includes(`cha_${characterType}_`));
@@ -68,7 +68,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  // ì ëë©ì´ì ì¤ì 
+  // 애니메이션 설정
   setupAnimations(typeFrames: string[]) {
     const type = this.characterType;
     
@@ -77,12 +77,12 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       return;
     }
     
-    // ì´ë¯¸ ì ëë©ì´ìì´ ì¡´ì¬íëì§ íì¸
+    // 이미 애니메이션이 존재하는지 확인
     const walkKey = `${type}_walk`;
     
     if (!this.scene.anims.exists(walkKey)) {
       try {
-        // ê±·ê¸° ì ëë©ì´ì ìì±
+        // 걷기 애니메이션 생성
         this.scene.anims.create({
           key: walkKey,
           frames: this.scene.anims.generateFrameNames('characters', {
@@ -93,13 +93,13 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
         });
         console.log(`Created enemy walk animation: ${walkKey} with frames:`, typeFrames.slice(0, Math.min(4, typeFrames.length)));
         
-        // ì ëë©ì´ì ì¬ì
+        // 애니메이션 재생
         this.play(walkKey);
       } catch (error) {
         console.error(`Error creating enemy animation: ${error}`);
       }
     } else {
-      // ì´ë¯¸ ì¡´ì¬íë ì ëë©ì´ì ì¬ì
+      // 이미 존재하는 애니메이션 재생
       this.play(walkKey);
     }
   }
@@ -107,18 +107,18 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   update(player: Phaser.GameObjects.GameObject) {
     if (!player || !this.active) return;
     
-    // íë ì´ì´ ë°©í¥ì¼ë¡ ì´ë
+    // 플레이어 방향으로 이동
     const playerSprite = player as Phaser.Physics.Arcade.Sprite;
     const angle = Phaser.Math.Angle.Between(this.x, this.y, playerSprite.x, playerSprite.y);
     
-    // ìë ê³ì°
+    // 속도 계산
     const velocityX = Math.cos(angle) * this.speed;
     const velocityY = Math.sin(angle) * this.speed;
     
-    // ìë ì¤ì 
+    // 속도 설정
     this.setVelocity(velocityX, velocityY);
     
-    // ë°©í¥ì ë°ë¼ ì¤íë¼ì´í¸ ë¤ì§ê¸°
+    // 방향에 따라 스프라이트 뒤집기
     if (velocityX < 0) {
       this.setFlipX(true);
     } else {
@@ -129,7 +129,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   takeDamage(amount: number) {
     this.health = Math.max(0, this.health - amount);
     
-    // í¼ê²© í¨ê³¼
+    // 타격 효과
     this.scene.tweens.add({
       targets: this,
       alpha: 0.5,
@@ -137,7 +137,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       yoyo: true
     });
     
-    // ì²´ë ¥ íì (ì í ì¬í­)
+    // 체력 표시 (색상 변화)
     const healthPercent = this.health / this.maxHealth;
     this.setTint(Phaser.Display.Color.GetColor(
       255,

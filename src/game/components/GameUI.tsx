@@ -85,7 +85,7 @@ export const GameUI = () => {
             />
           </div>
         </div>
-        
+        <boltAction type="file" filePath="src/game/components/GameUI.tsx">
         <div className="stat">
           <div className="stat-label">레벨 {level}</div>
           <div className="xp-bar">

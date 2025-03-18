@@ -4,5 +4,5 @@ export enum SceneKeys {
   CHAPTER_SELECT = 'chapter-select',
   CHARACTER_SELECT = 'character-select',
   MAIN = 'main',
-  PAUSE = 'pause' // 일시 정지 씬 추가
+  PAUSE = 'pause' // ì¼ì ì ì§ ì¬ ì¶ê°
 }

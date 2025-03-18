@@ -1,54 +1,89 @@
 import Phaser from 'phaser';
 
-export class XPGem extends Phaser.Physics.Arcade.Image {
-  value: number = 10;
+export class XPGem extends Phaser.Physics.Arcade.Sprite {
+  value: number;
   
   constructor(scene: Phaser.Scene, x: number, y: number) {
-    super(scene, x, y, 'gem');
+    super(scene, x, y, 'xp-gem');
     
     scene.add.existing(this);
     scene.physics.add.existing(this);
     
-    // Set up physics properties
+    // 젬 설정
     this.setScale(0.8);
-    this.setDepth(3);
+    this.value = 10;
     
-    // Add a glow effect
-    this.setBlendMode(Phaser.BlendModes.ADD);
+    // 물리 바디 설정
+    this.body.setSize(16, 16);
     
-    // Add a pulsing animation
-    scene.tweens.add({
-      targets: this,
-      scale: 1,
-      duration: 500,
-      yoyo: true,
-      repeat: -1
+    // 젬이 플레이어를 향해 서서히 이동하도록 설정
+    scene.time.addEvent({
+      delay: 100,
+      callback: this.moveTowardsPlayer,
+      callbackScope: this,
+      loop: true
     });
     
-    // Add a slight movement to make it more noticeable
-    const angle = Math.random() * Math.PI * 2;
-    const speed = 20;
-    this.setVelocity(
-      Math.cos(angle) * speed,
-      Math.sin(angle) * speed
-    );
-    
-    // Add drag to slow it down
-    this.setDamping(true);
-    this.setDrag(0.95);
-    
-    // Auto destroy after 10 seconds if not collected
+    // 일정 시간 후 자동 파괴
     scene.time.delayedCall(10000, () => {
       if (this.active) {
-        scene.tweens.add({
-          targets: this,
-          alpha: 0,
-          duration: 500,
-          onComplete: () => {
-            this.destroy();
-          }
-        });
+        this.destroy();
       }
     });
+    
+    // 생성 효과
+    scene.tweens.add({
+      targets: this,
+      scale: 0.8,
+      duration: 200,
+      ease: 'Bounce.easeOut',
+      yoyo: false
+    });
+    
+    // 회전 효과 추가
+    scene.tweens.add({
+      targets: this,
+      angle: 360,
+      duration: 2000,
+      repeat: -1,
+      ease: 'Linear'
+    });
+  }
+  
+  moveTowardsPlayer() {
+    try {
+      // 플레이어 찾기 - scene.children.list를 사용하여 모든 게임 오브젝트 접근
+      const gameObjects = this.scene.children.list;
+      const player = gameObjects.find(child => 
+        child instanceof Phaser.GameObjects.Sprite && 
+        child.constructor.name === 'Player'
+      );
+      
+      if (player && player instanceof Phaser.GameObjects.Sprite) {
+        // 플레이어와의 거리 계산
+        const distance = Phaser.Math.Distance.Between(
+          this.x, this.y,
+          player.x,
+          player.y
+        );
+        
+        // 일정 거리 이내면 플레이어를 향해 이동
+        if (distance < 200) {
+          const angle = Phaser.Math.Angle.Between(
+            this.x, this.y,
+            player.x,
+            player.y
+          );
+          
+          const speed = Math.min(200, 50 + (200 - distance));
+          const vx = Math.cos(angle) * speed;
+          const vy = Math.sin(angle) * speed;
+          
+          this.setVelocity(vx, vy);
+        }
+      }
+    } catch (error) {
+      console.error('Error in XPGem.moveTowardsPlayer:', error);
+    }
   }
 }

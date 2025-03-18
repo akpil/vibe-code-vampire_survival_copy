@@ -25,7 +25,7 @@ export const createGame = (parent: string): Phaser.Game => {
       ChapterSelectScene,
       CharacterSelectScene,
       MainScene,
-      PauseScene // 일시 정지 씬 추가
+      PauseScene // ì¼ì ì ì§ ì¬ ì¶ê°
     ],
     pixelArt: true,
     roundPixels: true
