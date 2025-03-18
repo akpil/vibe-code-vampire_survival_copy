@@ -2,6 +2,9 @@ import { useEffect, useRef } from "react";
 import "./App.css";
 import Phaser from "phaser";
 import { BootScene } from "./game/scenes/BootScene";
+import { TitleScene } from "./game/scenes/TitleScene";
+import { ChapterSelectScene } from "./game/scenes/ChapterSelectScene";
+import { CharacterSelectScene } from "./game/scenes/CharacterSelectScene";
 import { MainScene } from "./game/scenes/MainScene";
 import { GameUI } from "./components/GameUI";
 
@@ -37,7 +40,7 @@ function App() {
           gravity: { x: 0, y: 0 }
         }
       },
-      scene: [BootScene, MainScene],
+      scene: [BootScene, TitleScene, ChapterSelectScene, CharacterSelectScene, MainScene],
       scale: {
         mode: Phaser.Scale.RESIZE,
         autoCenter: Phaser.Scale.CENTER_BOTH

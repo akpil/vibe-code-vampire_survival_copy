@@ -4,6 +4,9 @@ import { Player } from '../entities/Player';
 import { Enemy } from '../entities/Enemy';
 import { Weapon } from '../entities/Weapon';
 import { XPGem } from '../entities/XPGem';
+import { CharacterType } from '../types/CharacterType';
+import { SceneKeys } from '../types/SceneKeys';
+import { ButtonFactory } from '../utils/ButtonFactory';
 
 export class MainScene extends Phaser.Scene {
   player: Player;
@@ -18,12 +21,37 @@ export class MainScene extends Phaser.Scene {
   
   kills: number = 0;
   
+  // 배경 타일 스프라이트
+  backgroundTile: Phaser.GameObjects.TileSprite;
+  
+  // 맵 크기 설정
+  readonly MAP_WIDTH: number = 4000;
+  readonly MAP_HEIGHT: number = 4000;
+  
+  // 게임 설정
+  private chapterNumber: number = 1;
+  private characterType: CharacterType = CharacterType.WARRIOR;
+  
   constructor() {
-    super({ key: 'MainScene' });
+    super({ key: SceneKeys.MAIN });
+  }
+  
+  init(data: any) {
+    // 이전 씬에서 전달받은 챕터와 캐릭터 정보
+    this.chapterNumber = data.chapter || 1;
+    this.characterType = data.character || CharacterType.WARRIOR;
+    
+    console.log(`Starting game with Chapter ${this.chapterNumber} and Character ${this.characterType}`);
   }
 
   create() {
+    // 씬 변경 이벤트 발생 - UI 표시를 위해 추가
+    gameEvents.emit('scene-changed', SceneKeys.MAIN);
+    
     console.log('MainScene create method started');
+    
+    // 월드 경계 설정 - 맵 크기 확장
+    this.physics.world.setBounds(0, 0, this.MAP_WIDTH, this.MAP_HEIGHT);
     
     // 텍스처 로딩 확인
     this.checkTextures();
@@ -36,29 +64,22 @@ export class MainScene extends Phaser.Scene {
     this.weapons = this.add.group({ classType: Weapon });
     this.xpGems = this.add.group({ classType: XPGem });
     
-    // Create player
-    this.player = new Player(this, this.cameras.main.width / 2, this.cameras.main.height / 2);
-    
-    // 디버깅: 플레이어 위치에 빨간색 점 표시
-    const debugMarker = this.add.circle(
-      this.cameras.main.width / 2, 
-      this.cameras.main.height / 2, 
-      10, 
-      0xff0000
-    );
-    debugMarker.setDepth(100);
+    // Create player at the center of the map with selected character type
+    this.player = new Player(this, this.MAP_WIDTH / 2, this.MAP_HEIGHT / 2, this.characterType);
     
     console.log('Player created at:', {
       x: this.player.x,
       y: this.player.y,
       width: this.player.width,
       height: this.player.height,
-      visible: this.player.visible
+      visible: this.player.visible,
+      characterType: this.characterType
     });
     
     // Set up camera to follow player
     this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
     this.cameras.main.setZoom(1);
+    this.cameras.main.setBounds(0, 0, this.MAP_WIDTH, this.MAP_HEIGHT);
     
     // Set up collisions
     this.physics.add.overlap(this.player, this.enemies, this.handlePlayerEnemyCollision, undefined, this);
@@ -83,7 +104,51 @@ export class MainScene extends Phaser.Scene {
     gameEvents.emit('kills-changed', this.kills);
     gameEvents.emit('time-changed', this.gameTime);
     
+    // 챕터에 따른 난이도 조정
+    this.adjustDifficultyByChapter();
+    
+    // 일시정지 메뉴 설정 - ESC 키 설정
+    this.setupPauseMenu();
+    
     console.log('MainScene create method completed');
+  }
+  
+  // 챕터에 따른 난이도 조정
+  adjustDifficultyByChapter() {
+    switch (this.chapterNumber) {
+      case 1:
+        // 챕터 1: 기본 난이도
+        this.difficulty = 1;
+        break;
+      case 2:
+        // 챕터 2: 중간 난이도
+        this.difficulty = 3;
+        break;
+      case 3:
+        // 챕터 3: 높은 난이도
+        this.difficulty = 5;
+        break;
+    }
+  }
+  
+  // 일시정지 메뉴 설정 - 완전히 새로운 방식으로 구현
+  setupPauseMenu() {
+    // ESC 키 설정
+    const escKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+    
+    escKey.on('down', () => {
+      console.log('ESC key pressed');
+      this.pauseGame();
+    });
+  }
+  
+  // 게임 일시정지 메서드 - 별도의 일시정지 씬 사용
+  pauseGame() {
+    console.log('Pausing game');
+    // 현재 씬 일시정지
+    this.scene.pause();
+    // 일시정지 씬 시작 (오버레이 모드)
+    this.scene.launch(SceneKeys.PAUSE);
   }
 
   // 텍스처 로딩 확인
@@ -100,28 +165,63 @@ export class MainScene extends Phaser.Scene {
   }
 
   createBackground() {
-    // Create a tiled background using the loaded tile image
+    // 배경 타일 스프라이트 생성 - 전체 맵 크기를 커버하도록 수정
     if (this.textures.exists('background-tile')) {
-      const bgTile = this.add.tileSprite(
-        0, 0,
-        this.cameras.main.width * 2, 
-        this.cameras.main.height * 2,
+      // 배경 타일 스프라이트를 카메라 뷰포트 중앙에 위치시키고 맵 전체를 커버하도록 설정
+      this.backgroundTile = this.add.tileSprite(
+        this.MAP_WIDTH / 2, 
+        this.MAP_HEIGHT / 2,
+        this.MAP_WIDTH, 
+        this.MAP_HEIGHT,
         'background-tile'
       );
-      bgTile.setOrigin(0, 0);
-      bgTile.setScrollFactor(0.2); // Parallax effect
+      this.backgroundTile.setOrigin(0.5, 0.5);
+      this.backgroundTile.setScrollFactor(0); // 스크롤 팩터를 0으로 설정하여 카메라와 함께 움직이지 않도록 함
     } else {
       console.error('Background tile texture not found');
       // 대체 배경 생성
       const bg = this.add.rectangle(
-        0, 0,
-        this.cameras.main.width * 2,
-        this.cameras.main.height * 2,
+        this.MAP_WIDTH / 2, 
+        this.MAP_HEIGHT / 2,
+        this.MAP_WIDTH,
+        this.MAP_HEIGHT,
         0x0a0a20
       );
-      bg.setOrigin(0, 0);
-      bg.setScrollFactor(0.2);
+      bg.setOrigin(0.5, 0.5);
+      bg.setScrollFactor(0);
     }
+    
+    // 맵 경계 표시 (디버깅 및 시각적 피드백용)
+    this.createMapBoundaryIndicators();
+  }
+  
+  // 맵 경계 표시 메서드
+  createMapBoundaryIndicators() {
+    // 맵 경계선 그리기
+    const borderGraphics = this.add.graphics();
+    borderGraphics.lineStyle(4, 0xff0000, 0.8);
+    borderGraphics.strokeRect(0, 0, this.MAP_WIDTH, this.MAP_HEIGHT);
+    
+    // 맵 모서리에 표시 추가
+    const cornerSize = 50;
+    const corners = [
+      { x: 0, y: 0 },
+      { x: this.MAP_WIDTH - cornerSize, y: 0 },
+      { x: 0, y: this.MAP_HEIGHT - cornerSize },
+      { x: this.MAP_WIDTH - cornerSize, y: this.MAP_HEIGHT - cornerSize }
+    ];
+    
+    corners.forEach(corner => {
+      const marker = this.add.rectangle(
+        corner.x + cornerSize / 2, 
+        corner.y + cornerSize / 2, 
+        cornerSize, 
+        cornerSize, 
+        0xff0000, 
+        0.3
+      );
+      marker.setOrigin(0.5, 0.5);
+    });
   }
 
   update(time: number, delta: number) {
@@ -139,6 +239,13 @@ export class MainScene extends Phaser.Scene {
     this.weapons.getChildren().forEach((weapon: any) => {
       weapon.update();
     });
+    
+    // 배경 타일 스프라이트 업데이트 - 카메라 위치에 따라 타일 오프셋 조정
+    if (this.backgroundTile) {
+      // 카메라 위치에 따라 타일 오프셋 조정
+      this.backgroundTile.tilePositionX = this.cameras.main.scrollX * 0.3;
+      this.backgroundTile.tilePositionY = this.cameras.main.scrollY * 0.3;
+    }
     
     // Spawn enemies based on timer
     this.spawnTimer += delta;
@@ -162,12 +269,16 @@ export class MainScene extends Phaser.Scene {
 
   spawnEnemies(count: number) {
     for (let i = 0; i < count; i++) {
-      // Spawn enemies outside the camera view
+      // Spawn enemies outside the camera view but within map bounds
       const angle = Math.random() * Math.PI * 2;
       const distance = 600; // Distance from player to spawn
       
-      const x = this.player.x + Math.cos(angle) * distance;
-      const y = this.player.y + Math.sin(angle) * distance;
+      let x = this.player.x + Math.cos(angle) * distance;
+      let y = this.player.y + Math.sin(angle) * distance;
+      
+      // 맵 경계 내에 생성되도록 좌표 조정
+      x = Phaser.Math.Clamp(x, 50, this.MAP_WIDTH - 50);
+      y = Phaser.Math.Clamp(y, 50, this.MAP_HEIGHT - 50);
       
       // Choose random enemy type based on difficulty
       const enemyTypes = ['enemy1', 'enemy2', 'enemy3'];
@@ -222,8 +333,6 @@ export class MainScene extends Phaser.Scene {
   }
 
   updateGameTime() {
-    this.gameTime
-
     this.gameTime++;
     gameEvents.emit('time-changed', this.gameTime);
   }

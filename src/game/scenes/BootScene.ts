@@ -1,12 +1,13 @@
 import Phaser from 'phaser';
 import { generatePlayerSprite, generateEnemySprite, generateWeaponSprite, generateGemSprite } from '../utils/spriteGenerator';
 import { gameEvents } from '../events';
+import { SceneKeys } from '../types/SceneKeys';
 
 export class BootScene extends Phaser.Scene {
   private assetsLoaded: boolean = false;
 
   constructor() {
-    super({ key: 'BootScene' });
+    super({ key: SceneKeys.BOOT });
   }
 
   preload() {
@@ -73,13 +74,13 @@ export class BootScene extends Phaser.Scene {
       gameEvents.emit('assets-load-error');
       
       // 오류 메시지 표시
-      this.add.text(width / 2, height / 2 + 50, '에셋 로딩 오류 발생!', {
+      this.add.text(width / 2, height / 2 + 50, '자원 로딩 오류 발생!', {
         font: '16px monospace',
         color: '#ff0000'
       }).setOrigin(0.5, 0.5);
     });
     
-    // 캐릭터 스프라이트 아틀라스 로드 - 상대 경로 사용
+    // 캐릭터 스프라이트 아틀라스 로드 - 외부 경로 사용
     this.load.atlas(
       'characters', 
       'https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/cha_sprite.png', 
@@ -121,18 +122,15 @@ export class BootScene extends Phaser.Scene {
         console.log('First frame dimensions:', frame.width, frame.height);
       }
       
-      // 테스트용 스프라이트 표시
-      const testSprite = this.add.sprite(400, 300, 'characters', frames[0]);
-      testSprite.setScale(2);
-      
-      // 3초 후 메인 씬으로 전환
-      this.time.delayedCall(3000, () => {
-        this.scene.start('MainScene');
+      // 테스트용 스프라이트 표시 (제거)
+      // 로드 완료 후 타이틀 씬으로 전환
+      this.time.delayedCall(1000, () => {
+        this.scene.start(SceneKeys.TITLE);
       });
     } else {
       console.error('Characters atlas failed to load');
-      // 로드 실패 시 바로 메인 씬으로 전환
-      this.scene.start('MainScene');
+      // 로드 실패 시 타이틀 씬으로 전환
+      this.scene.start(SceneKeys.TITLE);
     }
     
     // 배경 타일 로드 확인
@@ -144,6 +142,6 @@ export class BootScene extends Phaser.Scene {
   }
 
   create() {
-    // 이미 로드 완료 이벤트에서 처리했으므로 여기서는 추가 작업 없음
+    // 이미 로드 완료 이벤트에서 처리했으므로 여기에는 추가 작업 없음
   }
 }
