@@ -8,6 +8,13 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
   damage: number = 10;
   private characterType: CharacterType;
   
+  // 넉백 관련 변수 추가
+  private isKnockedBack: boolean = false;
+  private knockbackTime: number = 0;
+  private readonly knockbackDuration: number = 300; // 넉백 지속 시간 (ms)
+  private readonly knockbackCooldown: number = 500; // 넉백 쿨다운 (ms)
+  private lastKnockbackTime: number = 0;
+  
   constructor(scene: Phaser.Scene, x: number, y: number, type: string, health: number) {
     // Enemy type to character type mapping
     let characterType: CharacterType;
@@ -234,14 +241,26 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  update(player: Phaser.GameObjects.GameObject) {
+  update(player: Phaser.GameObjects.GameObject, time: number) {
     if (!player || !this.active) return;
+    
+    // 넉백 상태 업데이트
+    if (this.isKnockedBack) {
+      if (time > this.knockbackTime + this.knockbackDuration) {
+        this.isKnockedBack = false;
+        // 넉백 효과 종료 후 속도 복원
+        this.setTint(0xffffff);
+      } else {
+        // 넉백 중에는 플레이어 추적 안함
+        return;
+      }
+    }
     
     // 플레이어 방향으로 이동
     const playerSprite = player as Phaser.Physics.Arcade.Sprite;
     const angle = Phaser.Math.Angle.Between(this.x, this.y, playerSprite.x, playerSprite.y);
     
-    // 속도 계산
+    // // 속도 계산
     const velocityX = Math.cos(angle) * this.speed;
     const velocityY = Math.sin(angle) * this.speed;
     
@@ -256,7 +275,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  takeDamage(amount: number) {
+  takeDamage(amount: number, weaponType?: string, knockbackForce: number = 0, sourceX?: number, sourceY?: number) {
     this.health = Math.max(0, this.health - amount);
     
     // 히트 효과
@@ -274,5 +293,53 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
       Math.floor(255 * healthPercent),
       Math.floor(255 * healthPercent)
     ));
+    
+    // 방패에 맞았을 때 넉백 적용
+    if (weaponType === 'shield' && knockbackForce > 0) {
+      // 플레이어 위치 가져오기 (플레이어로부터 멀어지는 방향으로 넉백)
+      const player = this.scene.children.getChildren()
+        .find(child => child.name === 'player') as Phaser.Physics.Arcade.Sprite;
+      
+      if (player) {
+        // 플레이어에서 적으로의 방향 계산 (플레이어로부터 멀어지는 방향)
+        this.applyKnockback(knockbackForce, player.x, player.y);
+      } else if (sourceX !== undefined && sourceY !== undefined) {
+        // 플레이어를 찾지 못한 경우 무기 위치 사용
+        this.applyKnockback(knockbackForce, sourceX, sourceY);
+      }
+    }
+  }
+  
+  // 넉백 적용 메서드 - 플레이어로부터 멀어지는 방향으로 수정
+  applyKnockback(force: number, sourceX: number, sourceY: number) {
+    const currentTime = this.scene.time.now;
+    
+    // 넉백 쿨다운 확인
+    if (currentTime < this.lastKnockbackTime + this.knockbackCooldown) {
+      return;
+    }
+    
+    // 넉백 방향 계산 (플레이어 -> 적 방향으로 변경)
+    const angle = Phaser.Math.Angle.Between(sourceX, sourceY, this.x, this.y);
+    
+    // 넉백 속도 계산
+    const knockbackVelocityX = Math.cos(angle) * force;
+    const knockbackVelocityY = Math.sin(angle) * force;
+    
+    // 넉백 적용
+    this.setVelocity(knockbackVelocityX, knockbackVelocityY);
+    
+    // 넉백 상태 설정
+    this.isKnockedBack = true;
+    this.knockbackTime = currentTime;
+    this.lastKnockbackTime = currentTime;
+    
+    // 넉백 시각 효과
+    this.setTint(0xaaaaff); // 파란색 틴트로 넉백 상태 표시
+  }
+  
+  // 넉백 상태 확인 메서드
+  isInKnockback(): boolean {
+    return this.isKnockedBack;
   }
 }

@@ -1,372 +1,325 @@
 import Phaser from 'phaser';
 import { Weapon } from '../entities/Weapon';
-
-export interface WeaponConfig {
-  type: string;
-  name: string;
-  texture: string;
-  damage: number;
-  damagePerLevel: number;
-  cooldown: number;
-  cooldownReductionPerLevel: number;
-  speed: number;
-  destroyOnHit: boolean;
-  scale?: number;
-  rotation?: number;
-  tint?: string;
-  body?: {
-    width: number;
-    height: number;
-  };
-  lifespan?: number;
-  targeting?: string;
-  orbitDistance?: number;
-  orbitSpeed?: number;
-  orbitSpeedPerLevel?: number;
-  countPerLevel?: number;
-  baseCount?: number;
-  animation?: {
-    frameRate: number;
-    repeat: number;
-  };
-}
+import { Enemy } from '../entities/Enemy';
 
 export class WeaponManager {
   private scene: Phaser.Scene;
   private weaponsGroup: Phaser.GameObjects.Group;
-  private player: Phaser.Physics.Arcade.Sprite;
-  private activeShields: Weapon[] = [];
-  private shieldBaseAngle: number = 0;
-  private lastDirectionX: number = 0;
-  private lastDirectionY: number = -1; // ê¸°ë³¸ê°ì ììª½
-  private movementDirectionX: number = 0;
-  private movementDirectionY: number = -1; // ê¸°ë³¸ê°ì ììª½
-  private facingDirection: 'left' | 'right' = 'right'; // ê¸°ë³¸ê°ì ì¤ë¥¸ìª½
-  private weaponsData: Record<string, WeaponConfig> = {};
-
-  constructor(scene: Phaser.Scene, weaponsGroup: Phaser.GameObjects.Group, player: Phaser.Physics.Arcade.Sprite) {
+  private player: Phaser.GameObjects.GameObject;
+  private shields: Weapon[] = [];
+  private playerDirection: { x: number, y: number } = { x: 1, y: 0 };
+  private shieldAngles: number[] = [];
+  
+  constructor(scene: Phaser.Scene, weaponsGroup: Phaser.GameObjects.Group, player: Phaser.GameObjects.GameObject) {
     this.scene = scene;
     this.weaponsGroup = weaponsGroup;
     this.player = player;
-    
-    // ë¬´ê¸° ë°ì´í° ë¡ë
-    this.loadWeaponsData();
   }
   
-  // ë¬´ê¸° ë°ì´í° ë¡ë ë©ìë
-  private loadWeaponsData() {
-    // ì¬ìì ë¡ëë JSON ë°ì´í° ê°ì ¸ì¤ê¸°
-    const weaponsData = this.scene.cache.json.get('weapons-data');
-    
-    if (weaponsData) {
-      this.weaponsData = weaponsData;
-      console.log('Weapons data loaded successfully:', Object.keys(this.weaponsData));
-    } else {
-      console.error('Failed to load weapons data from cache');
-      // ê¸°ë³¸ ë¬´ê¸° ë°ì´í° ì¤ì  (í´ë°±)
-      this.setupDefaultWeaponsData();
+  // 플레이어 방향 업데이트
+  updatePlayerDirection(x: number, y: number) {
+    if (x !== 0 || y !== 0) {
+      this.playerDirection = { x, y };
     }
   }
   
-  // ê¸°ë³¸ ë¬´ê¸° ë°ì´í° ì¤ì  (ë°ì´í° ë¡ë ì¤í¨ ì)
-  private setupDefaultWeaponsData() {
-    this.weaponsData = {
-      "knife": {
-        "type": "projectile",
-        "name": "ì¹¼",
-        "texture": "knife",
-        "damage": 20,
-        "damagePerLevel": 5,
-        "cooldown": 500,
-        "cooldownReductionPerLevel": 0.1,
-        "speed": 300,
-        "destroyOnHit": true,
-        "scale": 1.0,
-        "rotation": 45,
-        "body": {
-          "width": 16,
-          "height": 8
-        },
-        "lifespan": 2000,
-        "targeting": "movement"
-      },
-      "shield": {
-        "type": "orbit",
-        "name": "ë°©í¨",
-        "texture": "shield",
-        "damage": 30,
-        "damagePerLevel": 8,
-        "cooldown": 1000,
-        "cooldownReductionPerLevel": 0.1,
-        "speed": 0,
-        "destroyOnHit": false,
-        "scale": 1.5,
-        "orbitDistance": 80,
-        "orbitSpeed": 0.05,
-        "orbitSpeedPerLevel": 0.02,
-        "countPerLevel": 0.5,
-        "baseCount": 1
-      },
-      "whip": {
-        "type": "projectile",
-        "name": "ì±ì°",
-        "texture": "whip",
-        "damage": 25,
-        "damagePerLevel": 7,
-        "cooldown": 1000,
-        "cooldownReductionPerLevel": 0.1,
-        "speed": 200,
-        "destroyOnHit": true,
-        "scale": 0.8,
-        "tint": "0x00ffff",
-        "animation": {
-          "frameRate": 10,
-          "repeat": -1
-        },
-        "targeting": "facing"
-      },
-      "arrow": {
-        "type": "projectile",
-        "name": "íì´",
-        "texture": "arrow",
-        "damage": 15,
-        "damagePerLevel": 5,
-        "cooldown": 1000,
-        "cooldownReductionPerLevel": 0.1,
-        "speed": 350,
-        "destroyOnHit": true,
-        "scale": 0.7,
-        "rotation": 0,
-        "body": {
-          "width": 8,
-          "height": 24
-        },
-        "lifespan": 2000,
-        "targeting": "nearest"
+  // 방패 업데이트
+  updateShields(delta: number) {
+    // 방패 회전 속도 (라디안/밀리초)
+    const rotationSpeed = 0.003;
+    
+    // 각 방패의 각도 업데이트
+    for (let i = 0; i < this.shieldAngles.length; i++) {
+      this.shieldAngles[i] += rotationSpeed * delta;
+      
+      // 각도가 2π를 넘어가면 리셋
+      if (this.shieldAngles[i] > Math.PI * 2) {
+        this.shieldAngles[i] -= Math.PI * 2;
       }
-    };
-    
-    console.log('Using default weapons data');
-  }
-
-  public updatePlayerDirection(directionX: number, directionY: number): void {
-    // ì´ë ë°©í¥ ì ì¥ (0ì´ ìë ê²½ì°ìë§ ìë°ì´í¸)
-    if (directionX !== 0 || directionY !== 0) {
-      this.movementDirectionX = directionX;
-      this.movementDirectionY = directionY;
-      this.lastDirectionX = directionX;
-      this.lastDirectionY = directionY;
     }
     
-    // ìºë¦­í°ê° ë°ë¼ë³´ë ë°©í¥ ìë°ì´í¸ (ì¢ì° ë°©í¥ë§)
-    if (directionX < 0) {
-      this.facingDirection = 'left';
-    } else if (directionX > 0) {
-      this.facingDirection = 'right';
+    // 방패 위치 업데이트
+    for (let i = 0; i < this.shields.length; i++) {
+      const shield = this.shields[i];
+      if (shield && shield.active) {
+        shield.orbitAngle = this.shieldAngles[i];
+      } else {
+        // 비활성화된 방패 제거
+        this.shields.splice(i, 1);
+        this.shieldAngles.splice(i, 1);
+        i--;
+      }
     }
-    // directionXê° 0ì¸ ê²½ì° facingDirectionì ë³ê²½íì§ ìì (ì´ì  ë°©í¥ ì ì§)
   }
-
-  public updateShields(delta: number): void {
-    // íì±íë ë°©í¨ ë¬´ê¸° íì¸ ë° ì ë¦¬ - ë¹íì± ë°©í¨ë§ ì ê±°
-    this.activeShields = this.activeShields.filter(shield => shield.active);
+  
+  // 무기 생성
+  createWeapon(type: string, level: number): Weapon | null {
+    const playerSprite = this.player as Phaser.Physics.Arcade.Sprite;
     
-    // ë°©í¨ ê°ë ìë°ì´í¸ - ê¸°ì¤ ê°ëë§ íì ìí¤ê³  ê° ë°©í¨ì ìëì  ìì¹ë ì ì§
-    if (this.activeShields.length > 0) {
-      // ê¸°ì¤ ê°ë ìë°ì´í¸ (íì  ìë ì¦ê°)
-      this.shieldBaseAngle += 0.03;
-      
-      // ê° ë°©í¨ì ê°ë ìë°ì´í¸
-      const angleStep = (Math.PI * 2) / this.activeShields.length;
-      
-      this.activeShields.forEach((shield, index) => {
-        // ê° ë°©í¨ì ìëì  ìì¹ ê³ì° (ê¸°ì¤ ê°ë + ì¸ë±ì¤ë³ ì¤íì)
-        const shieldAngle = this.shieldBaseAngle + (index * angleStep);
-        shield.orbitAngle = shieldAngle;
-      });
-    }
-  }
-
-  public createWeapon(type: string, level: number): Weapon | null {
-    const config = this.weaponsData[type];
-    if (!config) {
-      console.error(`Weapon type not found: ${type}`);
+    // 무기 데이터 가져오기
+    let weaponData = this.getWeaponData(type, level);
+    
+    if (!weaponData) {
+      console.error(`Weapon data not found for type: ${type}, level: ${level}`);
       return null;
     }
-
-    // ë¬´ê¸° ë°ì´í° ê³ì°
-    const damage = config.damage + (level - 1) * config.damagePerLevel;
     
-    // íê²í ë°©ìì ë°ë¥¸ ê°ë ê³ì°
-    let angle = 0;
-    let target = null;
-    
-    switch (config.targeting) {
-      case 'nearest':
-        // ê°ì¥ ê°ê¹ì´ ì  ì°¾ê¸°
-        const enemies = this.scene.children.getChildren()
-          .filter(child => child.constructor.name === 'Enemy')
-          .sort((a: any, b: any) => {
-            const distA = Phaser.Math.Distance.Between(this.player.x, this.player.y, a.x, a.y);
-            const distB = Phaser.Math.Distance.Between(this.player.x, this.player.y, b.x, b.y);
-            return distA - distB;
-          });
-        
-        if (enemies.length > 0) {
-          target = enemies[0] as Phaser.GameObjects.GameObject;
-          angle = Phaser.Math.Angle.Between(
-            this.player.x, 
-            this.player.y, 
-            (target as any).x, 
-            (target as any).y
-          );
-        } else {
-          // ì ì´ ìì¼ë©´ ë§ì§ë§ ë°©í¥ ëë ììª½ì¼ë¡
-          angle = Math.atan2(this.lastDirectionY, this.lastDirectionX);
-        }
-        break;
-        
-      case 'facing':
-        // ìºë¦­í°ê° ë°ë¼ë³´ë ë°©í¥ (ì¢/ì°)
-        if (this.facingDirection === 'left') {
-          angle = Math.PI; // ì¼ìª½ (180ë)
-        } else {
-          angle = 0; // ì¤ë¥¸ìª½ (0ë)
-        }
-        break;
-        
-      case 'movement':
-        // ìºë¦­í°ì ì´ë ë²¡í° ë°©í¥
-        angle = Math.atan2(this.movementDirectionY, this.movementDirectionX);
-        break;
-        
-      case 'forward':
-        // ìºë¦­í°ê° ë°ë¼ë³´ë ë°©í¥ (ìíì¢ì°)
-        angle = Math.atan2(this.lastDirectionY, this.lastDirectionX);
-        break;
-        
+    // 무기 타입에 따른 처리
+    switch (type) {
+      case 'knife':
+        return this.createKnife(playerSprite, weaponData);
+      case 'shield':
+        return this.createShield(playerSprite, weaponData);
+      case 'whip':
+        return this.createWhip(playerSprite, weaponData);
+      case 'arrow':
+        return this.createArrow(playerSprite, weaponData);
       default:
-        // ê¸°ë³¸ê°ì ë¬´ìì ë°©í¥
-        angle = Math.random() * Math.PI * 2;
-    }
-
-    // ë¬´ê¸° íìì ë°ë¥¸ ìì±
-    if (config.type === 'orbit') {
-      return this.createOrbitWeapon(config, level, damage, angle);
-    } else {
-      return this.createProjectileWeapon(config, level, damage, angle, target);
+        console.error(`Unknown weapon type: ${type}`);
+        return null;
     }
   }
-
-  private createProjectileWeapon(
-    config: WeaponConfig, 
-    level: number, 
-    damage: number, 
-    angle: number,
-    target: Phaser.GameObjects.GameObject | null
-  ): Weapon {
-    const weapon = new Weapon(
+  
+  // 무기 데이터 가져오기
+  private getWeaponData(type: string, level: number) {
+    // 무기 데이터 로드
+    let weaponsData;
+    try {
+      weaponsData = this.scene.cache.json.get('weapons-data');
+    } catch (error) {
+      console.error('Failed to load weapons data:', error);
+      return null;
+    }
+    
+    if (!weaponsData || !weaponsData[type]) {
+      // 기본 무기 데이터 사용
+      return this.getDefaultWeaponData(type, level);
+    }
+    
+    const weaponTypeData = weaponsData[type];
+    const levelKey = `level${level}`;
+    
+    if (!weaponTypeData[levelKey]) {
+      // 해당 레벨 데이터가 없으면 기본 데이터 사용
+      return this.getDefaultWeaponData(type, level);
+    }
+    
+    return weaponTypeData[levelKey];
+  }
+  
+  // 기본 무기 데이터
+  private getDefaultWeaponData(type: string, level: number) {
+    const baseDamage = type === 'knife' ? 10 : (type === 'shield' ? 5 : (type === 'whip' ? 15 : 20));
+    const baseSpeed = type === 'knife' ? 300 : (type === 'shield' ? 0 : (type === 'whip' ? 0 : 400));
+    const baseCount = type === 'shield' ? Math.min(level, 5) : 1;
+    
+    return {
+      damage: baseDamage + (level - 1) * 5,
+      speed: baseSpeed,
+      count: baseCount,
+      angle: 0,
+      destroyOnHit: type !== 'shield' && type !== 'whip'
+    };
+  }
+  
+  // 칼 생성
+  private createKnife(playerSprite: Phaser.Physics.Arcade.Sprite, weaponData: any): Weapon {
+    // 플레이어 방향 또는 마우스 방향으로 발사
+    const angle = this.getDirectionAngle();
+    
+    return new Weapon(
       this.scene,
-      this.player.x,
-      this.player.y,
-      config.texture,
-      damage,
+      playerSprite.x,
+      playerSprite.y,
+      'knife',
+      weaponData.damage,
       angle,
-      config.speed,
-      config.destroyOnHit,
+      weaponData.speed,
+      weaponData.destroyOnHit
+    );
+  }
+  
+  // 방패 생성
+  private createShield(playerSprite: Phaser.Physics.Arcade.Sprite, weaponData: any): Weapon | null {
+    // 이미 최대 개수의 방패가 있는지 확인
+    if (this.shields.length >= weaponData.count) {
+      return null;
+    }
+    
+    // 방패 간 각도 간격 계산
+    const angleStep = (Math.PI * 2) / weaponData.count;
+    
+    // 새 방패의 시작 각도 계산
+    let startAngle = 0;
+    if (this.shieldAngles.length > 0) {
+      // 기존 방패들 사이에 균등하게 배치
+      const gaps = this.findLargestAngleGap();
+      startAngle = gaps.start + (gaps.size / 2);
+    }
+    
+    // 방패 생성
+    const shield = new Weapon(
+      this.scene,
+      playerSprite.x,
+      playerSprite.y,
+      'shield',
+      weaponData.damage,
+      startAngle,
+      0,
       false,
-      null
+      true,
+      playerSprite
     );
     
-    // ì¶ê° ì¤ì 
-    if (config.scale) weapon.setScale(config.scale);
-    // íì  ì¤ì ì ì´ì  Weapon í´ëì¤ìì ì²ë¦¬ (knifeë ë°ì¬ ë°©í¥ì 45ë ì¶ê°)
-    if (config.tint) weapon.setTint(parseInt(config.tint));
-    if (config.body) weapon.body.setSize(config.body.width, config.body.height);
+    // 방패 및 각도 추가
+    this.shields.push(shield);
+    this.shieldAngles.push(startAngle);
     
-    // ì ëë©ì´ì ì¤ì 
-    if (config.animation && weapon.texture.frameTotal > 1) {
-      weapon.anims.create({
-        key: `${config.texture}-anim`,
-        frames: weapon.anims.generateFrameNumbers(config.texture, { 
-          start: 0, 
-          end: weapon.texture.frameTotal - 1 
-        }),
-        frameRate: config.animation.frameRate,
-        repeat: config.animation.repeat
-      });
-      
-      weapon.play(`${config.texture}-anim`);
-    }
-    
-    // ìëª ì¤ì 
-    if (config.lifespan) {
-      this.scene.time.delayedCall(config.lifespan, () => {
-        if (weapon.active) {
-          weapon.destroy();
-        }
-      });
-    }
-    
-    return weapon;
+    return shield;
   }
-
-  private createOrbitWeapon(
-    config: WeaponConfig, 
-    level: number, 
-    damage: number, 
-    angle: number
-  ): Weapon | null {
-    // ë°©í¨ ê°ì ê³ì° (ë ë²¨ì ë°ë¼ ì¦ê°)
-    const count = Math.floor(config.baseCount! + Math.floor(level / 2) * config.countPerLevel!);
-    
-    // íì¬ íì±íë ë°©í¨ ê°ì íì¸
-    if (this.activeShields.length >= count) {
-      // ì´ë¯¸ ì¶©ë¶í ë°©í¨ê° ìì¼ë©´ ìë¡ ìì±íì§ ìì
-      return null;
+  
+  // 가장 큰 각도 간격 찾기
+  private findLargestAngleGap(): { start: number, size: number } {
+    if (this.shieldAngles.length === 0) {
+      return { start: 0, size: Math.PI * 2 };
     }
     
-    // íìí ë°©í¨ë§ ì¶ê° ìì±
-    const newShieldsCount = count - this.activeShields.length;
+    // 각도 정렬
+    const sortedAngles = [...this.shieldAngles].sort((a, b) => a - b);
     
-    // ë°©í¨ ê° ê· ë±í ê°ë ë¶ë°°ë¥¼ ìí ê³ì°
-    const totalShields = this.activeShields.length + newShieldsCount;
-    const angleStep = (Math.PI * 2) / totalShields;
+    // 각도 간격 계산
+    let maxGap = { start: 0, size: 0 };
     
-    // ë§ì§ë§ì¼ë¡ ìì±ë ë°©í¨ ë°í
-    let lastShield: Weapon | null = null;
-    
-    for (let i = 0; i < newShieldsCount; i++) {
-      // ì ë°©í¨ì ì¸ë±ì¤ ê³ì°
-      const shieldIndex = this.activeShields.length + i;
+    for (let i = 0; i < sortedAngles.length; i++) {
+      const current = sortedAngles[i];
+      const next = sortedAngles[(i + 1) % sortedAngles.length];
       
-      // ë°©í¨ì ì´ê¸° ê°ë ì¤ì  (ê¸°ì¤ ê°ë + ì¸ë±ì¤ë³ ì¤íì)
-      const shieldAngle = this.shieldBaseAngle + (shieldIndex * angleStep);
+      // 다음 각도가 더 작으면 2π 더하기
+      let gap = next > current ? next - current : next + Math.PI * 2 - current;
       
-      const shield = new Weapon(
-        this.scene,
-        this.player.x,
-        this.player.y,
-        config.texture,
-        damage,
-        shieldAngle,
-        0,
-        false,
-        true,
-        this.player
+      if (gap > maxGap.size) {
+        maxGap = { start: current, size: gap };
+      }
+    }
+    
+    return maxGap;
+  }
+  
+  // 채찍 생성
+  private createWhip(playerSprite: Phaser.Physics.Arcade.Sprite, weaponData: any): Weapon {
+    // 플레이어 방향으로 발사
+    const angle = this.getDirectionAngle();
+    
+    return new Weapon(
+      this.scene,
+      playerSprite.x,
+      playerSprite.y,
+      'whip',
+      weaponData.damage,
+      angle,
+      weaponData.speed,
+      weaponData.destroyOnHit
+    );
+  }
+  
+  // 화살 생성
+  private createArrow(playerSprite: Phaser.Physics.Arcade.Sprite, weaponData: any): Weapon {
+    // 가장 가까운 적을 찾아 타겟팅
+    const angle = this.getNearestEnemyAngle(playerSprite);
+    
+    // 디버깅 로그 추가
+    console.log(`Arrow created with angle: ${angle * (180 / Math.PI)}°`);
+    
+    return new Weapon(
+      this.scene,
+      playerSprite.x,
+      playerSprite.y,
+      'arrow',
+      weaponData.damage,
+      angle,
+      weaponData.speed,
+      weaponData.destroyOnHit
+    );
+  }
+  
+  // 가장 가까운 적의 방향 각도 계산
+  private getNearestEnemyAngle(playerSprite: Phaser.Physics.Arcade.Sprite): number {
+    // 적 그룹 가져오기 - Enemy 클래스 인스턴스만 필터링
+    const enemies = this.scene.children.getChildren()
+      .filter(child => child instanceof Enemy && child.active);
+    
+    // 디버깅 로그 추가
+    console.log(`Found ${enemies.length} active enemies`);
+    
+    if (enemies.length === 0) {
+      // 적이 없으면 플레이어 방향 또는 랜덤 방향 사용
+      const randomAngle = this.getRandomAngle();
+      console.log(`No enemies found, using random angle: ${randomAngle * (180 / Math.PI)}°`);
+      return randomAngle;
+    }
+    
+    // 가장 가까운 적 찾기
+    let nearestEnemy = null;
+    let minDistance = Number.MAX_VALUE;
+    
+    for (const enemy of enemies) {
+      const enemySprite = enemy as Enemy;
+      const distance = Phaser.Math.Distance.Between(
+        playerSprite.x, playerSprite.y,
+        enemySprite.x, enemySprite.y
       );
       
-      // ë°©í¨ íì  ìë ì¤ì  - ë ë²¨ì ë°ë¼ ì¦ê°
-      shield.orbitSpeed = config.orbitSpeed! + (level * config.orbitSpeedPerLevel!);
+      // 디버깅 로그 추가
+      console.log(`Enemy at (${enemySprite.x}, ${enemySprite.y}), distance: ${distance}`);
       
-      // í¬ê¸° ì¤ì 
-      if (config.scale) shield.setScale(config.scale);
-      
-      // íì± ë°©í¨ ë°°ì´ì ì¶ê°
-      this.activeShields.push(shield);
-      lastShield = shield;
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestEnemy = enemySprite;
+      }
     }
     
-    return lastShield;
+    if (nearestEnemy) {
+      // 가장 가까운 적 방향으로 각도 계산
+      const targetAngle = Phaser.Math.Angle.Between(
+        playerSprite.x, playerSprite.y,
+        nearestEnemy.x, nearestEnemy.y
+      );
+      
+      console.log(`Targeting nearest enemy at (${nearestEnemy.x}, ${nearestEnemy.y}), angle: ${targetAngle * (180 / Math.PI)}°`);
+      return targetAngle;
+    }
+    
+    // 적을 찾지 못한 경우 플레이어 방향 사용
+    const directionAngle = this.getDirectionAngle();
+    console.log(`Fallback to player direction angle: ${directionAngle * (180 / Math.PI)}°`);
+    return directionAngle;
+  }
+  
+  // 방향 각도 계산
+  private getDirectionAngle(): number {
+    // 플레이어 방향이 있으면 사용
+    if (this.playerDirection.x !== 0 || this.playerDirection.y !== 0) {
+      return Math.atan2(this.playerDirection.y, this.playerDirection.x);
+    }
+    
+    // 기본 방향 (오른쪽)
+    return 0;
+  }
+  
+  // 랜덤 각도 생성 (적이 없을 때 사용)
+  private getRandomAngle(): number {
+    // 8방향 중 하나를 랜덤하게 선택
+    const directions = [
+      0,              // 오른쪽
+      Math.PI / 4,    // 오른쪽 아래
+      Math.PI / 2,    // 아래
+      3 * Math.PI / 4, // 왼쪽 아래
+      Math.PI,        // 왼쪽
+      5 * Math.PI / 4, // 왼쪽 위
+      3 * Math.PI / 2, // 위
+      7 * Math.PI / 4  // 오른쪽 위
+    ];
+    
+    return directions[Math.floor(Math.random() * directions.length)];
   }
 }
