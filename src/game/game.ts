@@ -1,8 +1,8 @@
 import Phaser from 'phaser';
 import { BootScene } from './scenes/BootScene';
 import { TitleScene } from './scenes/TitleScene';
-import { ChapterSelectScene } from './scenes/ChapterSelectScene';
 import { CharacterSelectScene } from './scenes/CharacterSelectScene';
+import { ChapterSelectScene } from './scenes/ChapterSelectScene';
 import { MainScene } from './scenes/MainScene';
 import { PauseScene } from './scenes/PauseScene';
 
@@ -22,10 +22,10 @@ export const createGame = (parent: string): Phaser.Game => {
     scene: [
       BootScene,
       TitleScene,
-      ChapterSelectScene,
       CharacterSelectScene,
+      ChapterSelectScene,
       MainScene,
-      PauseScene // 일시 정지 씬 추가
+      PauseScene
     ],
     pixelArt: true,
     roundPixels: true

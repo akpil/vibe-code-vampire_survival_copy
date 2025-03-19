@@ -1,9 +1,7 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Noto Sans KR', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -26,77 +24,88 @@ body {
   overflow: hidden;
 }
 
-#root {
-  width: 100%;
+/* 게임 컨테이너 스타일 */
+.game-container {
+  position: relative;
+  width: 100vw;
   height: 100vh;
   overflow: hidden;
 }
 
-.game-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-}
-
 .phaser-container {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
-  z-index: 1;
 }
 
+/* 게임 UI 스타일 */
 .game-ui {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 2;
   pointer-events: none;
+  z-index: 10;
+  font-family: 'Noto Sans KR', sans-serif;
 }
 
+/* 상태 표시 컨테이너 */
 .stats-container {
   position: absolute;
   top: 20px;
   left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   background-color: rgba(0, 0, 0, 0.5);
-  padding: 10px;
-  border-radius: 5px;
-  pointer-events: none;
+  padding: 15px;
+  border-radius: 8px;
+  min-width: 200px;
 }
 
 .stat {
-  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 .stat-label {
-  font-size: 14px;
-  margin-bottom: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
 }
 
-.health-bar, .xp-bar {
-  width: 200px;
+/* 체력 바 */
+.health-bar {
+  width: 100%;
   height: 15px;
-  background-color: #333;
+  background-color: rgba(255, 255, 255, 0.2);
   border-radius: 3px;
   overflow: hidden;
 }
 
 .health-fill {
   height: 100%;
-  background-color: #e74c3c;
+  background-color: #ff4444;
   transition: width 0.3s ease;
+}
+
+/* 경험치 바 */
+.xp-bar {
+  width: 100%;
+  height: 15px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+  overflow: hidden;
 }
 
 .xp-fill {
   height: 100%;
-  background-color: #3498db;
+  background-color: #44aaff;
   transition: width 0.3s ease;
 }
 
+/* 게임 오버 화면 */
 .game-over-container {
   position: absolute;
   top: 0;
@@ -111,29 +120,36 @@ body {
 }
 
 .game-over-panel {
-  background-color: #2c3e50;
+  background-color: rgba(30, 30, 50, 0.9);
   padding: 30px;
   border-radius: 10px;
   text-align: center;
+  min-width: 300px;
 }
 
 .game-over-panel h2 {
-  font-size: 24px;
+  font-size: 32px;
   margin-bottom: 20px;
+  color: #ff4444;
+}
+
+.game-over-panel p {
+  font-size: 18px;
+  margin: 10px 0;
 }
 
 .game-over-panel button {
-  background-color: #e74c3c;
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 18px;
+  background-color: #44aaff;
   color: white;
   border: none;
-  padding: 10px 20px;
   border-radius: 5px;
-  font-size: 16px;
   cursor: pointer;
-  margin-top: 20px;
   transition: background-color 0.3s;
 }
 
 .game-over-panel button:hover {
-  background-color: #c0392b;
+  background-color: #3388cc;
 }

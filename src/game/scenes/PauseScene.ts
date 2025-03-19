@@ -10,7 +10,7 @@ export class PauseScene extends Phaser.Scene {
   create() {
     console.log('PauseScene created');
     
-    // ë°í¬ëª ë°°ê²½ ì¤ë²ë ì´
+    // 반투명 배경 오버레이
     const overlay = this.add.rectangle(
       this.cameras.main.width / 2,
       this.cameras.main.height / 2,
@@ -20,11 +20,11 @@ export class PauseScene extends Phaser.Scene {
       0.7
     );
     
-    // ì¼ìì ì§ íì´í
+    // 일시정지 타이틀
     const pauseTitle = this.add.text(
       this.cameras.main.width / 2,
       this.cameras.main.height / 2 - 100,
-      'ì¼ìì ì§',
+      '일시정지',
       {
         fontFamily: 'Arial',
         fontSize: '48px',
@@ -35,13 +35,13 @@ export class PauseScene extends Phaser.Scene {
     );
     pauseTitle.setOrigin(0.5);
     
-    // ê³ìíê¸° ë²í¼
+    // 계속하기 버튼
     ButtonFactory.createButton(
       this,
       this.cameras.main.width / 2,
       this.cameras.main.height / 2,
       'btn-green',
-      'ê³ìíê¸°',
+      '계속하기',
       () => {
         console.log('Resume button clicked');
         this.resumeGame();
@@ -52,13 +52,13 @@ export class PauseScene extends Phaser.Scene {
       100
     );
     
-    // íì´íë¡ ë²í¼
+    // 타이틀로 버튼
     ButtonFactory.createButton(
       this,
       this.cameras.main.width / 2,
       this.cameras.main.height / 2 + 100,
       'btn-red',
-      'íì´íë¡',
+      '타이틀로',
       () => {
         console.log('Title button clicked');
         this.returnToTitle();
@@ -69,7 +69,7 @@ export class PauseScene extends Phaser.Scene {
       100
     );
     
-    // ESC í¤ ìë ¥ ì²ë¦¬
+    // ESC 키 입력 처리
     this.input.keyboard.on('keydown-ESC', () => {
       this.resumeGame();
     });
@@ -78,18 +78,18 @@ export class PauseScene extends Phaser.Scene {
   }
   
   resumeGame() {
-    // ë©ì¸ ì¬ ì¬ê°
+    // 메인 씬 재개
     this.scene.resume(SceneKeys.MAIN);
-    // ì¼ìì ì§ ì¬ ì¨ê¸°ê¸°
+    // 일시정지 씬 숨기기
     this.scene.stop();
   }
   
   returnToTitle() {
-    // ë©ì¸ ì¬ ì¤ì§
+    // 메인 씬 중지
     this.scene.stop(SceneKeys.MAIN);
-    // ì¼ìì ì§ ì¬ ì¤ì§
+    // 일시정지 씬 중지
     this.scene.stop();
-    // íì´í ì¬ì¼ë¡ ì´ë
+    // 타이틀 씬으로 이동
     this.scene.start(SceneKeys.TITLE);
   }
 }

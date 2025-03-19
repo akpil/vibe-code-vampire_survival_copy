@@ -1,0 +1,75 @@
+{
+  "knife": {
+    "type": "projectile",
+    "name": "칼",
+    "texture": "knife",
+    "damage": 20,
+    "damagePerLevel": 5,
+    "cooldown": 500,
+    "cooldownReductionPerLevel": 0.1,
+    "speed": 300,
+    "destroyOnHit": true,
+    "scale": 1.0,
+    "rotation": 45,
+    "body": {
+      "width": 16,
+      "height": 8
+    },
+    "lifespan": 2000,
+    "targeting": "movement"
+  },
+  "shield": {
+    "type": "orbit",
+    "name": "방패",
+    "texture": "shield",
+    "damage": 30,
+    "damagePerLevel": 8,
+    "cooldown": 1000,
+    "cooldownReductionPerLevel": 0.1,
+    "speed": 0,
+    "destroyOnHit": false,
+    "scale": 1.5,
+    "orbitDistance": 80,
+    "orbitSpeed": 0.05,
+    "orbitSpeedPerLevel": 0.02,
+    "countPerLevel": 0.5,
+    "baseCount": 1
+  },
+  "whip": {
+    "type": "projectile",
+    "name": "채찍",
+    "texture": "whip",
+    "damage": 25,
+    "damagePerLevel": 7,
+    "cooldown": 1000,
+    "cooldownReductionPerLevel": 0.1,
+    "speed": 200,
+    "destroyOnHit": true,
+    "scale": 0.8,
+    "tint": "0x00ffff",
+    "animation": {
+      "frameRate": 10,
+      "repeat": -1
+    },
+    "targeting": "facing"
+  },
+  "arrow": {
+    "type": "projectile",
+    "name": "화살",
+    "texture": "arrow",
+    "damage": 15,
+    "damagePerLevel": 5,
+    "cooldown": 1000,
+    "cooldownReductionPerLevel": 0.1,
+    "speed": 350,
+    "destroyOnHit": true,
+    "scale": 0.7,
+    "rotation": 0,
+    "body": {
+      "width": 8,
+      "height": 24
+    },
+    "lifespan": 2000,
+    "targeting": "nearest"
+  }
+}

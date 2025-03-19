@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { Weapon } from './Weapon';
 import { gameEvents } from '../events';
 import { CharacterType } from '../types/CharacterType';
+import { WeaponManager } from '../utils/WeaponManager';
 
 export class Player extends Phaser.Physics.Arcade.Sprite {
   health: number = 100;
@@ -15,12 +16,21 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   weapons: { type: string, level: number, cooldown: number, lastFired: number }[] = [];
   private characterType: CharacterType;
   private usingFallbackSprite: boolean = false;
+  private alternativeSprite: string | null = null;
   
   // 무적 상태 관련 변수
   private isInvincible: boolean = false;
   private invincibilityDuration: number = 1000; // 1초 동안 무적
   
-  constructor(scene: Phaser.Scene, x: number, y: number, characterType: CharacterType = CharacterType.WARRIOR) {
+  // 애니메이션 키 저장 변수 추가
+  private walkAnimKey: string;
+  private idleAnimKey: string;
+  private attackAnimKey: string;
+  
+  // 무기 관리자
+  private weaponManager: WeaponManager;
+  
+  constructor(scene: Phaser.Scene, x: number, y: number, weaponsGroup: Phaser.GameObjects.Group, characterType: CharacterType = CharacterType.WARRIOR) {
     // 아틀라스에서 캐릭터 타입에 맞는 첫 번째 프레임으로 초기화
     super(scene, x, y, 'characters');
     this.characterType = characterType;
@@ -41,6 +51,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.body.setSize(20, 20);
     this.body.setOffset(6, 12);
     
+    // 무기 관리자 초기화
+    this.weaponManager = new WeaponManager(scene, weaponsGroup, this);
+    
     // 아틀라스 텍스처 설정
     this.setupCharacterSprite();
     
@@ -49,6 +62,38 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     
     // Set up initial weapon
     this.setupInitialWeapon();
+    
+    // 애니메이션 설정
+    this.setupAnimations();
+    
+    // 방패 텍스처 로드 확인 및 생성
+    this.preloadShieldTexture();
+  }
+  
+  // 방패 텍스처 로드 확인 및 생성
+  preloadShieldTexture() {
+    if (!this.scene.textures.exists('shield')) {
+      // 방패 텍스처 생성
+      const graphics = this.scene.make.graphics({ x: 0, y: 0 });
+      
+      // 방패 모양 그리기
+      graphics.fillStyle(0x3498db); // 파란색
+      graphics.fillRect(0, 0, 24, 24);
+      
+      // 테두리 추가
+      graphics.lineStyle(2, 0xffffff);
+      graphics.strokeRect(0, 0, 24, 24);
+      
+      // 방패 디테일 추가
+      graphics.fillStyle(0xf39c12); // 노란색
+      graphics.fillCircle(12, 12, 6);
+      
+      // 텍스처 생성
+      graphics.generateTexture('shield', 24, 24);
+      graphics.destroy();
+      
+      console.log('Created shield texture');
+    }
   }
   
   // 캐릭터 스프라이트 설정
@@ -57,7 +102,30 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       const frames = this.scene.textures.get('characters').getFrameNames();
       console.log('Available frames for player:', frames);
       
-      // 캐릭터 타입에 맞는 프레임 찾기
+      // 성직자 캐릭터에 대한 대체 스프라이트 설정
+      if (this.characterType === CharacterType.PRIEST) {
+        // 'monk' 스프라이트를 성직자 캐릭터로 사용
+        const monkFrames = frames.filter(frame => frame.includes('cha_monk_'));
+        if (monkFrames.length > 0) {
+          this.alternativeSprite = 'monk';
+          this.usingFallbackSprite = false;
+          this.setTexture('characters', monkFrames[0]);
+          console.log(`Using monk sprite for priest: ${monkFrames[0]}`);
+          return;
+        }
+        
+        // 'monk'가 없으면 'knight' 스프라이트 시도
+        const knightFrames = frames.filter(frame => frame.includes('cha_knight_'));
+        if (knightFrames.length > 0) {
+          this.alternativeSprite = 'knight';
+          this.usingFallbackSprite = false;
+          this.setTexture('characters', knightFrames[0]);
+          console.log(`Using knight sprite for priest: ${knightFrames[0]}`);
+          return;
+        }
+      }
+      
+      // 일반적인 캐릭터 타입 처리
       const typePrefix = `cha_${this.characterType}_`;
       const typeFrames = frames.filter(frame => frame.includes(typePrefix));
       
@@ -77,6 +145,143 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.usingFallbackSprite = true;
       // 폴백 스프라이트 생성
       this.createFallbackSprite();
+    }
+  }
+  
+  // 애니메이션 설정
+  setupAnimations() {
+    if (this.usingFallbackSprite) return;
+    
+    const frames = this.scene.textures.get('characters').getFrameNames();
+    
+    // 성직자 캐릭터에 대한 대체 애니메이션 설정
+    let typePrefix = `cha_${this.characterType}_`;
+    let animPrefix = this.characterType;
+    
+    if (this.characterType === CharacterType.PRIEST && this.alternativeSprite) {
+      typePrefix = `cha_${this.alternativeSprite}_`;
+      // 애니메이션 키는 여전히 priest로 유지 (update 메서드와 일치시키기 위해)
+      animPrefix = this.characterType;
+    }
+    
+    console.log(`Setting up animations with prefix: ${typePrefix}, animPrefix: ${animPrefix}`);
+    
+    const typeFrames = frames.filter(frame => frame.includes(typePrefix));
+    console.log(`Found ${typeFrames.length} frames with prefix ${typePrefix}:`, typeFrames);
+    
+    if (typeFrames.length < 1) {
+      console.warn(`Not enough frames for animations with prefix ${typePrefix}`);
+      return;
+    }
+    
+    // 애니메이션 키 설정
+    this.walkAnimKey = `${animPrefix}_walk`;
+    this.idleAnimKey = `${animPrefix}_idle`;
+    this.attackAnimKey = `${animPrefix}_attack`;
+    
+    // 기존 애니메이션이 있으면 제거
+    const animKeys = [this.walkAnimKey, this.idleAnimKey, this.attackAnimKey];
+    
+    animKeys.forEach(key => {
+      if (this.scene.anims.exists(key)) {
+        this.scene.anims.remove(key);
+      }
+    });
+    
+    // 걷기 애니메이션
+    const walkFrames = typeFrames.filter(frame => frame.includes('walk') || frame.includes('move'));
+    console.log(`Walk frames:`, walkFrames);
+    
+    if (walkFrames.length >= 1) {
+      // 한 프레임만 있어도 애니메이션 생성 (반복)
+      const animFrames = walkFrames.length >= 2 ? walkFrames : [...walkFrames, ...walkFrames];
+      
+      this.scene.anims.create({
+        key: this.walkAnimKey,
+        frames: this.scene.anims.generateFrameNames('characters', {
+          frames: animFrames
+        }),
+        frameRate: 8,
+        repeat: -1
+      });
+      
+      console.log(`Created walk animation with key: ${this.walkAnimKey}`);
+    } else if (typeFrames.length >= 2) {
+      // 걷기 프레임이 없으면 모든 프레임을 사용하여 걷기 애니메이션 생성
+      this.scene.anims.create({
+        key: this.walkAnimKey,
+        frames: this.scene.anims.generateFrameNames('characters', {
+          frames: typeFrames
+        }),
+        frameRate: 8,
+        repeat: -1
+      });
+      
+      console.log(`Created fallback walk animation with key: ${this.walkAnimKey} using all frames`);
+    } else {
+      // 프레임이 하나뿐이면 같은 프레임을 두 번 사용
+      this.scene.anims.create({
+        key: this.walkAnimKey,
+        frames: this.scene.anims.generateFrameNames('characters', {
+          frames: [...typeFrames, ...typeFrames]
+        }),
+        frameRate: 8,
+        repeat: -1
+      });
+      
+      console.log(`Created fallback walk animation with key: ${this.walkAnimKey} using single frame`);
+    }
+    
+    // 대기 애니메이션
+    const idleFrames = typeFrames.filter(frame => frame.includes('idle') || frame.includes('stand'));
+    console.log(`Idle frames:`, idleFrames);
+    
+    if (idleFrames.length >= 1) {
+      this.scene.anims.create({
+        key: this.idleAnimKey,
+        frames: this.scene.anims.generateFrameNames('characters', {
+          frames: idleFrames
+        }),
+        frameRate: 5,
+        repeat: -1
+      });
+      
+      console.log(`Created idle animation with key: ${this.idleAnimKey}`);
+    } else if (typeFrames.length > 0) {
+      // 대기 애니메이션이 없으면 첫 번째 프레임을 사용
+      this.scene.anims.create({
+        key: this.idleAnimKey,
+        frames: this.scene.anims.generateFrameNames('characters', {
+          frames: [typeFrames[0]]
+        }),
+        frameRate: 5,
+        repeat: -1
+      });
+      
+      console.log(`Created fallback idle animation with key: ${this.idleAnimKey}`);
+    }
+    
+    // 공격 애니메이션
+    const attackFrames = typeFrames.filter(frame => frame.includes('attack'));
+    console.log(`Attack frames:`, attackFrames);
+    
+    if (attackFrames.length >= 1) {
+      this.scene.anims.create({
+        key: this.attackAnimKey,
+        frames: this.scene.anims.generateFrameNames('characters', {
+          frames: attackFrames
+        }),
+        frameRate: 10,
+        repeat: 0
+      });
+      
+      console.log(`Created attack animation with key: ${this.attackAnimKey}`);
+    }
+    
+    // 기본 애니메이션 재생
+    if (this.scene.anims.exists(this.idleAnimKey)) {
+      this.play(this.idleAnimKey);
+      console.log(`Playing idle animation: ${this.idleAnimKey}`);
     }
   }
   
@@ -134,6 +339,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.maxHealth = 80;
         this.speed = 200;
         break;
+      
+
       case CharacterType.PRIEST:
         // 성직자: 중간 체력, 느린 속도, 회복 능력
         this.health = 100;
@@ -145,6 +352,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.health = 70;
         this.maxHealth = 70;
         this.speed = 250;
+        break;
+      case CharacterType.KNIGHT:
+        // 기사: 높은 체력, 느린 속도, 강한 방어력
+        this.health = 150;
+        this.maxHealth = 150;
+        this.speed = 180;
         break;
     }
     
@@ -158,27 +371,27 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     
     switch (this.characterType) {
       case CharacterType.WARRIOR:
-        // 전사: 도끼 무기
+        // 전사: 방패 무기
         this.weapons.push({
-          type: 'axe',
+          type: 'shield',
           level: 1,
           cooldown: 1000,
           lastFired: 0
         });
         break;
       case CharacterType.MAGE:
-        // 마법사: 마법 무기
+        // 마법사: 화살 무기 (채찍에서 변경)
         this.weapons.push({
-          type: 'magic',
+          type: 'arrow',
           level: 1,
-          cooldown: 1200,
+          cooldown: 1000,
           lastFired: 0
         });
         break;
       case CharacterType.PRIEST:
-        // 성직자: 마법 무기 (약한 버전)
+        // 성직자: 채찍 무기 (약한 버전)
         this.weapons.push({
-          type: 'magic',
+          type: 'whip',
           level: 1,
           cooldown: 1500,
           lastFired: 0
@@ -193,6 +406,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
           lastFired: 0
         });
         break;
+      case CharacterType.KNIGHT:
+        // 기사: 검 무기
+        this.weapons.push({
+          type: 'knife',
+          level: 1,
+          cooldown: 800,
+          lastFired: 0
+        });
+        break;
       default:
         // 기본: 칼 무기
         this.weapons.push({
@@ -204,7 +426,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  update() {
+  update(delta: number) {
     // Handle movement
     const cursors = this.scene.input.keyboard.createCursorKeys();
     const keys = this.scene.input.keyboard.addKeys('W,A,S,D') as any;
@@ -235,21 +457,35 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     
     this.setVelocity(vx * this.speed, vy * this.speed);
     
+    // 이동 방향 업데이트 (무기 발사 방향 계산용)
+    this.weaponManager.updatePlayerDirection(vx, vy);
+    
+    // 방패 업데이트
+    this.weaponManager.updateShields(delta);
+    
     // 폴백 스프라이트를 사용 중이면 애니메이션 업데이트 건너뛰기
     if (this.usingFallbackSprite) return;
     
     // Update animation based on movement
-    const type = this.characterType;
-    const walkKey = `${type}_walk`;
-    const idleKey = `${type}_idle`;
-    
-    if (vx === 0 && vy === 0) {
-      if (this.anims.currentAnim?.key !== idleKey && this.scene.anims.exists(idleKey)) {
-        this.play(idleKey);
+    if (vx !== 0 || vy !== 0) {
+      // 이동 중
+      if (this.anims.currentAnim?.key !== this.walkAnimKey) {
+        if (this.scene.anims.exists(this.walkAnimKey)) {
+          console.log(`Playing walk animation: ${this.walkAnimKey}`);
+          this.play(this.walkAnimKey, true);
+        } else {
+          console.warn(`Walk animation ${this.walkAnimKey} does not exist`);
+        }
       }
     } else {
-      if (this.anims.currentAnim?.key !== walkKey && this.scene.anims.exists(walkKey)) {
-        this.play(walkKey);
+      // 정지 상태
+      if (this.anims.currentAnim?.key !== this.idleAnimKey) {
+        if (this.scene.anims.exists(this.idleAnimKey)) {
+          console.log(`Playing idle animation: ${this.idleAnimKey}`);
+          this.play(this.idleAnimKey, true);
+        } else {
+          console.warn(`Idle animation ${this.idleAnimKey} does not exist`);
+        }
       }
     }
   }
@@ -333,7 +569,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             break;
           case CharacterType.MAGE:
             this.weapons.push({
-              type: 'axe',
+              type: 'shield',
               level: 1,
               cooldown: 1200,
               lastFired: 0
@@ -349,15 +585,23 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             break;
           case CharacterType.GHOST:
             this.weapons.push({
-              type: 'magic',
+              type: 'whip',
               level: 1,
               cooldown: 1500,
               lastFired: 0
             });
             break;
+          case CharacterType.KNIGHT:
+            this.weapons.push({
+              type: 'shield',
+              level: 1,
+              cooldown: 1000,
+              lastFired: 0
+            });
+            break;
           default:
             this.weapons.push({
-              type: 'axe',
+              type: 'shield',
               level: 1,
               cooldown: 1000,
               lastFired: 0
@@ -365,7 +609,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         }
       } else if (this.level === 6) {
         // 모든 캐릭터에게 세 번째 무기 추가
-        const missingWeaponTypes = ['knife', 'axe', 'magic'].filter(
+        const missingWeaponTypes = ['knife', 'shield', 'whip', 'arrow'].filter(
           type => !this.weapons.some(weapon => weapon.type === type)
         );
         
@@ -374,7 +618,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
           this.weapons.push({
             type: newWeaponType,
             level: 1,
-            cooldown: newWeaponType === 'knife' ? 500 : newWeaponType === 'axe' ? 1000 : 1500,
+            cooldown: newWeaponType === 'knife' ? 500 : (newWeaponType === 'shield' ? 1000 : 1500),
             lastFired: 0
           });
         }
@@ -403,97 +647,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.weapons.forEach(weapon => {
       if (time - weapon.lastFired >= weapon.cooldown) {
         weapon.lastFired = time;
-        switch (weapon.type) {
-          case 'knife':
-            this.fireKnife(weaponsGroup, weapon.level);
-            break;
-          case 'axe':
-            this.fireAxe(weaponsGroup, weapon.level);
-            break;
-          case 'magic':
-            this.fireMagic(weaponsGroup, weapon.level);
-            break;
+        
+        // 데이터 기반 무기 생성
+        const newWeapon = this.weaponManager.createWeapon(weapon.type, weapon.level);
+        
+        if (newWeapon) {
+          weaponsGroup.add(newWeapon);
         }
       }
-    });
-  }
-
-  fireKnife(weaponsGroup: Phaser.GameObjects.Group, level: number) {
-    // Fire in the direction the player is facing or moving
-    const angle = Math.random() * Math.PI * 2;
-    const speed = 300;
-    const damage = 20 + (level - 1) * 5;
-    
-    const knife = new Weapon(
-      this.scene,
-      this.x,
-      this.y,
-      'knife',
-      damage,
-      angle,
-      speed,
-      true
-    );
-    
-    weaponsGroup.add(knife);
-  }
-
-  fireAxe(weaponsGroup: Phaser.GameObjects.Group, level: number) {
-    // Axes orbit around the player
-    const count = 1 + Math.floor(level / 2);
-    const damage = 30 + (level - 1) * 8;
-    
-    for (let i = 0; i < count; i++) {
-      const angle = (i / count) * Math.PI * 2;
-      const axe = new Weapon(
-        this.scene,
-        this.x,
-        this.y,
-        'axe',
-        damage,
-        angle,
-        0,
-        false,
-        true,
-        this
-      );
-      
-      weaponsGroup.add(axe);
-    }
-  }
-
-  fireMagic(weaponsGroup: Phaser.GameObjects.Group, level: number) {
-    // Magic targets nearest enemies
-    const count = level;
-    const damage = 25 + (level - 1) * 7;
-    const speed = 200;
-    
-    // Find nearest enemies
-    const enemies = this.scene.children.getChildren()
-      .filter(child => child.constructor.name === 'Enemy')
-      .sort((a: any, b: any) => {
-        const distA = Phaser.Math.Distance.Between(this.x, this.y, a.x, a.y);
-        const distB = Phaser.Math.Distance.Between(this.x, this.y, b.x, b.y);
-        return distA - distB;
-      })
-      .slice(0, count);
-    
-    enemies.forEach((enemy: any) => {
-      const angle = Phaser.Math.Angle.Between(this.x, this.y, enemy.x, enemy.y);
-      
-      const magic = new Weapon(
-        this.scene,
-        this.x,
-        this.y,
-        'magic',
-        damage,
-        angle,
-        speed,
-        true,
-        false
-      );
-      
-      weaponsGroup.add(magic);
     });
   }
 }

@@ -108,8 +108,8 @@ export function generateWeaponSprite(scene: Phaser.Scene, key: string, color: st
     graphics.lineTo(16, 0);
     graphics.closePath();
     graphics.strokePath();
-  } else if (key === 'axe') {
-    // Shield shape (replacing axe)
+  } else if (key === 'shield') {  // 'axe'에서 'shield'로 변경
+    // Shield shape
     graphics.fillStyle(0x3498db); // Blue shield
     graphics.fillCircle(16, 16, 12);
     
@@ -125,17 +125,29 @@ export function generateWeaponSprite(scene: Phaser.Scene, key: string, color: st
     graphics.fillStyle(0xffffff);
     graphics.fillRect(14, 10, 4, 12);
     graphics.fillRect(10, 14, 12, 4);
-  } else if (key === 'magic') {
-    // Magic orb
-    graphics.fillCircle(16, 16, 8);
+  } else if (key === 'whip') {  // 'magic'에서 'whip'으로 변경
+    // Whip shape (채찍 모양)
+    graphics.fillStyle(0x9b59b6); // 보라색 채찍
     
-    // Add glow effect
-    graphics.fillStyle(0xffffff, 0.5);
-    graphics.fillCircle(16, 16, 12);
+    // 채찍 손잡이
+    graphics.fillRect(14, 4, 4, 8);
+    
+    // 채찍 줄
+    graphics.lineStyle(3, 0x9b59b6, 1);
+    graphics.beginPath();
+    graphics.moveTo(16, 12);
+    graphics.lineTo(16, 28);
+    graphics.strokePath();
     
     // 테두리 추가
-    graphics.lineStyle(2, 0xffffff, 1);
-    graphics.strokeCircle(16, 16, 8);
+    graphics.lineStyle(1, 0xffffff, 1);
+    graphics.strokeRect(14, 4, 4, 8);
+    
+    // 채찍 끝 부분
+    graphics.fillStyle(0x8e44ad);
+    graphics.fillCircle(16, 28, 3);
+    graphics.lineStyle(1, 0xffffff, 1);
+    graphics.strokeCircle(16, 28, 3);
   }
   
   graphics.generateTexture(key, 32, 32);

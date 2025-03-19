@@ -9,81 +9,25 @@ export class XPGem extends Phaser.Physics.Arcade.Sprite {
     scene.add.existing(this);
     scene.physics.add.existing(this);
     
-    // ì ¬ ì¤ì 
-    this.setScale(0.8);
+    // 경험치 젬 크기 설정
+    this.setDisplaySize(24, 24);
     this.value = 10;
     
-    // ë¬¼ë¦¬ ë°ë ì¤ì 
-    this.body.setSize(16, 16);
+    // 물리 바디 크기도 동일하게 설정
+    this.body.setSize(24, 24);
     
-    // ì ¬ì´ íë ì´ì´ë¥¼ í¥í´ ììí ì´ëíëë¡ ì¤ì 
-    scene.time.addEvent({
-      delay: 100,
-      callback: this.moveTowardsPlayer,
-      callbackScope: this,
-      loop: true
-    });
+    // 물리 속도를 0으로 설정하여 움직이지 않도록 함
+    this.setVelocity(0, 0);
     
-    // ì¼ì  ìê° í ìë íê´´
-    scene.time.delayedCall(10000, () => {
-      if (this.active) {
-        this.destroy();
-      }
-    });
+    // 물리 바디를 정적으로 설정하여 움직이지 않도록 함
+    this.body.setImmovable(true);
     
-    // ìì± í¨ê³¼
+    // 알파값 조정 효과 (페이드인만 유지)
     scene.tweens.add({
       targets: this,
-      scale: 0.8,
+      alpha: { from: 0.6, to: 1 },
       duration: 200,
-      ease: 'Bounce.easeOut',
-      yoyo: false
+      ease: 'Sine.easeOut'
     });
-    
-    // íì  í¨ê³¼ ì¶ê°
-    scene.tweens.add({
-      targets: this,
-      angle: 360,
-      duration: 2000,
-      repeat: -1,
-      ease: 'Linear'
-    });
-  }
-  
-  moveTowardsPlayer() {
-    try {
-      // íë ì´ì´ ì°¾ê¸° - scene.children.listë¥¼ ì¬ì©íì¬ ëª¨ë  ê²ì ì¤ë¸ì í¸ ì ê·¼
-      const gameObjects = this.scene.children.list;
-      const player = gameObjects.find(child => 
-        child instanceof Phaser.GameObjects.Sprite && 
-        child.constructor.name === 'Player'
-      );
-      
-      if (player && player instanceof Phaser.GameObjects.Sprite) {
-        // íë ì´ì´ìì ê±°ë¦¬ ê³ì°
-        const distance = Phaser.Math.Distance.Between(
-          this.x, this.y,
-          player.x,
-          player.y
-        );
-        
-        // ì¼ì  ê±°ë¦¬ ì´ë´ë©´ íë ì´ì´ë¥¼ í¥í´ ì´ë
-        if (distance < 200) {
-          const angle = Phaser.Math.Angle.Between(
-            this.x, this.y,
-            player.x,
-            player.y
-          );
-          
-          const speed = Math.min(200, 50 + (200 - distance));
-          const vx = Math.cos(angle) * speed;
-          const vy = Math.sin(angle) * speed;
-          
-          this.setVelocity(vx, vy);
-        }
-      }
-    } catch (error) {
-      console.error('Error in XPGem.moveTowardsPlayer:', error);
-    }
   }
 }
