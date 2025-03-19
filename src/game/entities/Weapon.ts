@@ -28,28 +28,28 @@ export class Weapon extends Phaser.Physics.Arcade.Sprite {
     this.damage = damage;
     this.destroyOnHit = destroyOnHit;
     
-    // 무기 타입에 따른 설정
+    // ë¬´ê¸° íìì ë°ë¥¸ ì¤ì 
     switch (type) {
       case 'knife':
         this.setScale(1.0);
-        // 칼의 회전을 발사 방향에서 135도 꺾기 (45도에서 90도 더 추가)
+        // ì¹¼ì íì ì ë°ì¬ ë°©í¥ìì 135ë êº¾ê¸° (45ëìì 90ë ë ì¶ê°)
         this.setRotation(angle + (135 * (Math.PI / 180)));
         this.body.setSize(16, 8);
         break;
       case 'shield':
-        this.setScale(1.5); // 방패 크기 증가
+        this.setScale(1.5); // ë°©í¨ í¬ê¸° ì¦ê°
         this.orbitTarget = orbitTarget;
-        this.orbitDistance = 80; // 거리 조정
+        this.orbitDistance = 80; // ê±°ë¦¬ ì¡°ì 
         this.orbitAngle = angle;
         this.orbitSpeed = 0.05;
         break;
       case 'whip':
         this.setScale(0.8);
         this.setTint(0x00ffff);
-        // 마법 무기도 방향 조정
+        // ë§ë² ë¬´ê¸°ë ë°©í¥ ì¡°ì 
         this.setRotation(angle - Math.PI/2);
         
-        // 프레임 인덱스 설정 (whip 스프라이트시트의 경우)
+        // íë ì ì¸ë±ì¤ ì¤ì  (whip ì¤íë¼ì´í¸ìí¸ì ê²½ì°)
         if (this.texture.frameTotal > 1) {
           this.anims.create({
             key: 'whip-anim',
@@ -63,14 +63,14 @@ export class Weapon extends Phaser.Physics.Arcade.Sprite {
         break;
     }
     
-    // 무기가 궤도를 돌지 않는 경우 속도 설정
+    // ë¬´ê¸°ê° ê¶¤ëë¥¼ ëì§ ìë ê²½ì° ìë ì¤ì 
     if (!orbit) {
-      // 이동 방향 설정 - 모든 무기 타입에 대해 동일하게 적용
+      // ì´ë ë°©í¥ ì¤ì  - ëª¨ë  ë¬´ê¸° íìì ëí´ ëì¼íê² ì ì©
       const vx = Math.cos(angle) * speed;
       const vy = Math.sin(angle) * speed;
       this.setVelocity(vx, vy);
       
-      // 무기가 일정 시간 후 자동 파괴되도록 설정 (궤도 무기 제외)
+      // ë¬´ê¸°ê° ì¼ì  ìê° í ìë íê´´ëëë¡ ì¤ì  (ê¶¤ë ë¬´ê¸° ì ì¸)
       if (destroyOnHit) {
         scene.time.delayedCall(2000, () => {
           if (this.active) {
@@ -79,11 +79,11 @@ export class Weapon extends Phaser.Physics.Arcade.Sprite {
         });
       }
     } else {
-      // 궤도를 도는 무기는 물리 효과 비활성화
+      // ê¶¤ëë¥¼ ëë ë¬´ê¸°ë ë¬¼ë¦¬ í¨ê³¼ ë¹íì±í
       this.body.setVelocity(0, 0);
       this.body.setImmovable(true);
       
-      // 초기 위치 설정 (궤도 시작점)
+      // ì´ê¸° ìì¹ ì¤ì  (ê¶¤ë ììì )
       if (this.orbitTarget) {
         const target = this.orbitTarget as Phaser.GameObjects.Sprite;
         const x = target.x + Math.cos(this.orbitAngle) * this.orbitDistance;
@@ -94,30 +94,30 @@ export class Weapon extends Phaser.Physics.Arcade.Sprite {
   }
   
   update() {
-    // 궤도를 도는 무기 업데이트
+    // ê¶¤ëë¥¼ ëë ë¬´ê¸° ìë°ì´í¸
     if (this.orbitTarget && this.orbitTarget.active) {
       const target = this.orbitTarget as Phaser.GameObjects.Sprite;
       
-      // 새 위치 계산 - orbitAngle은 Player 클래스에서 관리됨
+      // ì ìì¹ ê³ì° - orbitAngleì Player í´ëì¤ìì ê´ë¦¬ë¨
       const x = target.x + Math.cos(this.orbitAngle) * this.orbitDistance;
       const y = target.y + Math.sin(this.orbitAngle) * this.orbitDistance;
       
-      // 위치 설정
+      // ìì¹ ì¤ì 
       this.setPosition(x, y);
       
-      // 방패의 경우 회전 방식 변경 (axe 방식으로)
+      // ë°©í¨ì ê²½ì° íì  ë°©ì ë³ê²½ (axe ë°©ìì¼ë¡)
       if (this.texture.key === 'shield') {
-        // 방패가 플레이어를 향하도록 회전 (axe 방식)
-        // 방패의 앞부분이 항상 이동 방향을 가리키도록 설정
-        const rotationAngle = this.orbitAngle + Math.PI / 2; // 90도 추가 회전
+        // ë°©í¨ê° íë ì´ì´ë¥¼ í¥íëë¡ íì  (axe ë°©ì)
+        // ë°©í¨ì ìë¶ë¶ì´ í­ì ì´ë ë°©í¥ì ê°ë¦¬í¤ëë¡ ì¤ì 
+        const rotationAngle = this.orbitAngle + Math.PI / 2; // 90ë ì¶ê° íì 
         this.setRotation(rotationAngle);
       }
     } else if (this.orbitTarget && !this.orbitTarget.active) {
-      // 타겟이 비활성화되면 무기도 제거
+      // íê²ì´ ë¹íì±íëë©´ ë¬´ê¸°ë ì ê±°
       this.destroy();
     }
     
-    // 맵 밖으로 나가면 파괴 (궤도 무기 제외)
+    // ë§µ ë°ì¼ë¡ ëê°ë©´ íê´´ (ê¶¤ë ë¬´ê¸° ì ì¸)
     if (!this.orbitTarget) {
       const scene = this.scene as Phaser.Scene;
       if (

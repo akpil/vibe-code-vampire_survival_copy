@@ -9,31 +9,31 @@ export class TitleScene extends Phaser.Scene {
   }
 
   create() {
-    // 씬 변경 이벤트 발생
+    // Emit scene change event
     gameEvents.emit('scene-changed', SceneKeys.TITLE);
     
     console.log('TitleScene: create started');
     
-    // 텍스처 로드 확인
+    // Check texture loading
     this.checkTextures();
     
-    // 배경 이미지 추가
+    // Add background image
     const bg = this.add.image(0, 0, 'bg-title');
     bg.setOrigin(0, 0);
     
-    // 화면 크기에 맞게 배경 이미지 스케일 조정
+    // Scale background image to fit screen
     const scaleX = this.cameras.main.width / bg.width;
     const scaleY = this.cameras.main.height / bg.height;
     const scale = Math.max(scaleX, scaleY);
     bg.setScale(scale);
     
-    // 게임 타이틀 텍스트 추가
+    // Add game title text
     const titleText = this.add.text(
       this.cameras.main.centerX, 
       this.cameras.main.height * 0.3, 
       'Vampire Survival', 
       {
-        fontFamily: 'Arial, Malgun Gothic, 맑은 고딕, Dotum, 돋움, sans-serif',
+        fontFamily: 'Arial, sans-serif',
         fontSize: '64px',
         color: '#ffffff',
         stroke: '#000000',
@@ -43,51 +43,51 @@ export class TitleScene extends Phaser.Scene {
     );
     titleText.setOrigin(0.5);
     
-    // 시작 버튼 추가 - ButtonFactory 사용
+    // Add start button - using ButtonFactory
     ButtonFactory.createButton(
       this,
       this.cameras.main.centerX,
       this.cameras.main.height * 0.6,
       'btn-blue',
-      '게임 시작',
+      'Start Game',
       () => {
         this.scene.start(SceneKeys.CHAPTER_SELECT);
       }
     );
     
-    // 설정 버튼 추가 - ButtonFactory 사용
+    // Add settings button - using ButtonFactory
     ButtonFactory.createButton(
       this,
       this.cameras.main.centerX,
       this.cameras.main.height * 0.7,
       'btn-green',
-      '설정',
+      'Settings',
       () => {
-        // 설정 기능 (미구현)
+        // Settings feature (not implemented)
         console.log('Settings button clicked');
       }
     );
     
-    // 종료 버튼 추가 - ButtonFactory 사용
+    // Add exit button - using ButtonFactory
     ButtonFactory.createButton(
       this,
       this.cameras.main.centerX,
       this.cameras.main.height * 0.8,
       'btn-red',
-      '종료',
+      'Exit',
       () => {
-        // 브라우저에서는 실제로 게임을 종료할 수 없으므로 경고 표시
-        alert('브라우저 게임에서는 종료 기능이 제한됩니다.');
+        // In browser games, we can't really exit, so show a warning
+        alert('Exit function is limited in browser games.');
       }
     );
     
-    // 버전 정보 표시
+    // Display version info
     const versionText = this.add.text(
       10, 
       this.cameras.main.height - 30, 
       'Version 1.0.0', 
       {
-        fontFamily: 'Arial, Malgun Gothic, 맑은 고딕, sans-serif',
+        fontFamily: 'Arial, sans-serif',
         fontSize: '16px',
         color: '#ffffff'
       }
@@ -96,7 +96,7 @@ export class TitleScene extends Phaser.Scene {
     console.log('TitleScene: create completed');
   }
   
-  // 텍스처 로드 확인
+  // Check texture loading
   checkTextures() {
     console.log('TitleScene - Checking textures:');
     console.log('- bg-title:', this.textures.exists('bg-title'));
@@ -104,7 +104,7 @@ export class TitleScene extends Phaser.Scene {
     console.log('- btn-green:', this.textures.exists('btn-green'));
     console.log('- btn-red:', this.textures.exists('btn-red'));
     
-    // 텍스처가 없는 경우 폴백 생성
+    // Create fallback textures if needed
     if (!this.textures.exists('bg-title')) {
       this.createFallbackBackground();
     }
@@ -122,19 +122,19 @@ export class TitleScene extends Phaser.Scene {
     }
   }
   
-  // 폴백 배경 생성
+  // Create fallback background
   createFallbackBackground() {
     console.log('Creating fallback background');
     const graphics = this.make.graphics({ x: 0, y: 0 });
     
-    // 그라데이션 배경
+    // Gradient background
     const width = 800;
     const height = 600;
     
     graphics.fillGradientStyle(0x000033, 0x000033, 0x000066, 0x000066, 1);
     graphics.fillRect(0, 0, width, height);
     
-    // 별 추가
+    // Add stars
     for (let i = 0; i < 100; i++) {
       const x = Math.random() * width;
       const y = Math.random() * height;
@@ -144,25 +144,25 @@ export class TitleScene extends Phaser.Scene {
       graphics.fillCircle(x, y, size);
     }
     
-    // 텍스처 생성
+    // Generate texture
     graphics.generateTexture('bg-title', width, height);
     graphics.destroy();
   }
   
-  // 폴백 버튼 생성
+  // Create fallback button
   createFallbackButton(key: string, color: number) {
     console.log(`Creating fallback button: ${key}`);
     const graphics = this.make.graphics({ x: 0, y: 0 });
     
-    // 버튼 배경
+    // Button background
     graphics.fillStyle(color);
     graphics.fillRoundedRect(0, 0, 180, 60, 10);
     
-    // 버튼 테두리
+    // Button border
     graphics.lineStyle(2, 0xffffff, 1);
     graphics.strokeRoundedRect(0, 0, 180, 60, 10);
     
-    // 텍스처 생성
+    // Generate texture
     graphics.generateTexture(key, 180, 60);
     graphics.destroy();
   }

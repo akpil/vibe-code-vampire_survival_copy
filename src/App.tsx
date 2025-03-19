@@ -44,7 +44,7 @@ function App() {
 
       gameRef.current = new Phaser.Game(config);
 
-      // 창 크기 변경 시 게임 크기 조정
+      // ì°½ í¬ê¸° ë³ê²½ ì ê²ì í¬ê¸° ì¡°ì 
       const resizeGame = () => {
         if (gameRef.current) {
           gameRef.current.scale.resize(window.innerWidth, window.innerHeight);
@@ -53,7 +53,7 @@ function App() {
 
       window.addEventListener("resize", resizeGame);
 
-      // 컴포넌트 언마운트 시 정리
+      // ì»´í¬ëí¸ ì¸ë§ì´í¸ ì ì ë¦¬
       return () => {
         window.removeEventListener("resize", resizeGame);
         if (gameRef.current) {

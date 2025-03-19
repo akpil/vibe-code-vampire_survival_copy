@@ -18,32 +18,32 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private usingFallbackSprite: boolean = false;
   private alternativeSprite: string | null = null;
   
-  // 무적 상태 관련 변수
+  // ë¬´ì  ìí ê´ë ¨ ë³ì
   private isInvincible: boolean = false;
-  private invincibilityDuration: number = 1000; // 1초 동안 무적
+  private invincibilityDuration: number = 1000; // 1ì´ ëì ë¬´ì 
   
-  // 애니메이션 키 저장 변수 추가
+  // ì ëë©ì´ì í¤ ì ì¥ ë³ì ì¶ê°
   private walkAnimKey: string;
   private idleAnimKey: string;
   private attackAnimKey: string;
   
-  // 무기 관리자
+  // ë¬´ê¸° ê´ë¦¬ì
   private weaponManager: WeaponManager;
   
   constructor(scene: Phaser.Scene, x: number, y: number, weaponsGroup: Phaser.GameObjects.Group, characterType: CharacterType = CharacterType.WARRIOR) {
-    // 아틀라스에서 캐릭터 타입에 맞는 첫 번째 프레임으로 초기화
+    // ìíë¼ì¤ìì ìºë¦­í° íìì ë§ë ì²« ë²ì§¸ íë ìì¼ë¡ ì´ê¸°í
     super(scene, x, y, 'characters');
     this.characterType = characterType;
     
     scene.add.existing(this);
     scene.physics.add.existing(this);
     
-    // 맵 경계 내에서만 이동하도록 설정
+    // ë§µ ê²½ê³ ë´ììë§ ì´ëíëë¡ ì¤ì 
     this.setCollideWorldBounds(true);
     this.setDepth(10);
     this.setScale(1.5);
     
-    // 스프라이트가 보이는지 확인
+    // ì¤íë¼ì´í¸ê° ë³´ì´ëì§ íì¸
     this.setAlpha(1);
     this.setVisible(true);
     
@@ -51,44 +51,44 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.body.setSize(20, 20);
     this.body.setOffset(6, 12);
     
-    // 무기 관리자 초기화
+    // ë¬´ê¸° ê´ë¦¬ì ì´ê¸°í
     this.weaponManager = new WeaponManager(scene, weaponsGroup, this);
     
-    // 아틀라스 텍스처 설정
+    // ìíë¼ì¤ íì¤ì² ì¤ì 
     this.setupCharacterSprite();
     
-    // 캐릭터 타입에 따른 초기 능력치 설정
+    // ìºë¦­í° íìì ë°ë¥¸ ì´ê¸° ë¥ë ¥ì¹ ì¤ì 
     this.setupCharacterStats();
     
     // Set up initial weapon
     this.setupInitialWeapon();
     
-    // 애니메이션 설정
+    // ì ëë©ì´ì ì¤ì 
     this.setupAnimations();
     
-    // 방패 텍스처 로드 확인 및 생성
+    // ë°©í¨ íì¤ì² ë¡ë íì¸ ë° ìì±
     this.preloadShieldTexture();
   }
   
-  // 방패 텍스처 로드 확인 및 생성
+  // ë°©í¨ íì¤ì² ë¡ë íì¸ ë° ìì±
   preloadShieldTexture() {
     if (!this.scene.textures.exists('shield')) {
-      // 방패 텍스처 생성
+      // ë°©í¨ íì¤ì² ìì±
       const graphics = this.scene.make.graphics({ x: 0, y: 0 });
       
-      // 방패 모양 그리기
-      graphics.fillStyle(0x3498db); // 파란색
+      // ë°©í¨ ëª¨ì ê·¸ë¦¬ê¸°
+      graphics.fillStyle(0x3498db); // íëì
       graphics.fillRect(0, 0, 24, 24);
       
-      // 테두리 추가
+      // íëë¦¬ ì¶ê°
       graphics.lineStyle(2, 0xffffff);
       graphics.strokeRect(0, 0, 24, 24);
       
-      // 방패 디테일 추가
-      graphics.fillStyle(0xf39c12); // 노란색
+      // ë°©í¨ ëíì¼ ì¶ê°
+      graphics.fillStyle(0xf39c12); // ë¸ëì
       graphics.fillCircle(12, 12, 6);
       
-      // 텍스처 생성
+      // íì¤ì² ìì±
       graphics.generateTexture('shield', 24, 24);
       graphics.destroy();
       
@@ -96,15 +96,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
   }
   
-  // 캐릭터 스프라이트 설정
+  // ìºë¦­í° ì¤íë¼ì´í¸ ì¤ì 
   setupCharacterSprite() {
     if (this.scene.textures.exists('characters')) {
       const frames = this.scene.textures.get('characters').getFrameNames();
       console.log('Available frames for player:', frames);
       
-      // 성직자 캐릭터에 대한 대체 스프라이트 설정
+      // ì±ì§ì ìºë¦­í°ì ëí ëì²´ ì¤íë¼ì´í¸ ì¤ì 
       if (this.characterType === CharacterType.PRIEST) {
-        // 'monk' 스프라이트를 성직자 캐릭터로 사용
+        // 'monk' ì¤íë¼ì´í¸ë¥¼ ì±ì§ì ìºë¦­í°ë¡ ì¬ì©
         const monkFrames = frames.filter(frame => frame.includes('cha_monk_'));
         if (monkFrames.length > 0) {
           this.alternativeSprite = 'monk';
@@ -114,7 +114,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
           return;
         }
         
-        // 'monk'가 없으면 'knight' 스프라이트 시도
+        // 'monk'ê° ìì¼ë©´ 'knight' ì¤íë¼ì´í¸ ìë
         const knightFrames = frames.filter(frame => frame.includes('cha_knight_'));
         if (knightFrames.length > 0) {
           this.alternativeSprite = 'knight';
@@ -125,42 +125,42 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         }
       }
       
-      // 일반적인 캐릭터 타입 처리
+      // ì¼ë°ì ì¸ ìºë¦­í° íì ì²ë¦¬
       const typePrefix = `cha_${this.characterType}_`;
       const typeFrames = frames.filter(frame => frame.includes(typePrefix));
       
       if (typeFrames.length > 0) {
         this.usingFallbackSprite = false;
-        // 첫 번째 프레임으로 텍스처 설정
+        // ì²« ë²ì§¸ íë ìì¼ë¡ íì¤ì² ì¤ì 
         this.setTexture('characters', typeFrames[0]);
         console.log(`Using character sprite: ${typeFrames[0]}`);
       } else {
         console.error(`No frames found for character type: ${this.characterType}, using fallback`);
         this.usingFallbackSprite = true;
-        // 폴백 스프라이트 생성
+        // í´ë°± ì¤íë¼ì´í¸ ìì±
         this.createFallbackSprite();
       }
     } else {
       console.error('Characters texture not loaded, using fallback');
       this.usingFallbackSprite = true;
-      // 폴백 스프라이트 생성
+      // í´ë°± ì¤íë¼ì´í¸ ìì±
       this.createFallbackSprite();
     }
   }
   
-  // 애니메이션 설정
+  // ì ëë©ì´ì ì¤ì 
   setupAnimations() {
     if (this.usingFallbackSprite) return;
     
     const frames = this.scene.textures.get('characters').getFrameNames();
     
-    // 성직자 캐릭터에 대한 대체 애니메이션 설정
+    // ì±ì§ì ìºë¦­í°ì ëí ëì²´ ì ëë©ì´ì ì¤ì 
     let typePrefix = `cha_${this.characterType}_`;
     let animPrefix = this.characterType;
     
     if (this.characterType === CharacterType.PRIEST && this.alternativeSprite) {
       typePrefix = `cha_${this.alternativeSprite}_`;
-      // 애니메이션 키는 여전히 priest로 유지 (update 메서드와 일치시키기 위해)
+      // ì ëë©ì´ì í¤ë ì¬ì í priestë¡ ì ì§ (update ë©ìëì ì¼ì¹ìí¤ê¸° ìí´)
       animPrefix = this.characterType;
     }
     
@@ -174,12 +174,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       return;
     }
     
-    // 애니메이션 키 설정
+    // ì ëë©ì´ì í¤ ì¤ì 
     this.walkAnimKey = `${animPrefix}_walk`;
     this.idleAnimKey = `${animPrefix}_idle`;
     this.attackAnimKey = `${animPrefix}_attack`;
     
-    // 기존 애니메이션이 있으면 제거
+    // ê¸°ì¡´ ì ëë©ì´ìì´ ìì¼ë©´ ì ê±°
     const animKeys = [this.walkAnimKey, this.idleAnimKey, this.attackAnimKey];
     
     animKeys.forEach(key => {
@@ -188,12 +188,12 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       }
     });
     
-    // 걷기 애니메이션
+    // ê±·ê¸° ì ëë©ì´ì
     const walkFrames = typeFrames.filter(frame => frame.includes('walk') || frame.includes('move'));
     console.log(`Walk frames:`, walkFrames);
     
     if (walkFrames.length >= 1) {
-      // 한 프레임만 있어도 애니메이션 생성 (반복)
+      // í íë ìë§ ìì´ë ì ëë©ì´ì ìì± (ë°ë³µ)
       const animFrames = walkFrames.length >= 2 ? walkFrames : [...walkFrames, ...walkFrames];
       
       this.scene.anims.create({
@@ -207,7 +207,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       
       console.log(`Created walk animation with key: ${this.walkAnimKey}`);
     } else if (typeFrames.length >= 2) {
-      // 걷기 프레임이 없으면 모든 프레임을 사용하여 걷기 애니메이션 생성
+      // ê±·ê¸° íë ìì´ ìì¼ë©´ ëª¨ë  íë ìì ì¬ì©íì¬ ê±·ê¸° ì ëë©ì´ì ìì±
       this.scene.anims.create({
         key: this.walkAnimKey,
         frames: this.scene.anims.generateFrameNames('characters', {
@@ -219,7 +219,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       
       console.log(`Created fallback walk animation with key: ${this.walkAnimKey} using all frames`);
     } else {
-      // 프레임이 하나뿐이면 같은 프레임을 두 번 사용
+      // íë ìì´ íëë¿ì´ë©´ ê°ì íë ìì ë ë² ì¬ì©
       this.scene.anims.create({
         key: this.walkAnimKey,
         frames: this.scene.anims.generateFrameNames('characters', {
@@ -232,7 +232,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       console.log(`Created fallback walk animation with key: ${this.walkAnimKey} using single frame`);
     }
     
-    // 대기 애니메이션
+    // ëê¸° ì ëë©ì´ì
     const idleFrames = typeFrames.filter(frame => frame.includes('idle') || frame.includes('stand'));
     console.log(`Idle frames:`, idleFrames);
     
@@ -248,7 +248,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       
       console.log(`Created idle animation with key: ${this.idleAnimKey}`);
     } else if (typeFrames.length > 0) {
-      // 대기 애니메이션이 없으면 첫 번째 프레임을 사용
+      // ëê¸° ì ëë©ì´ìì´ ìì¼ë©´ ì²« ë²ì§¸ íë ìì ì¬ì©
       this.scene.anims.create({
         key: this.idleAnimKey,
         frames: this.scene.anims.generateFrameNames('characters', {
@@ -261,7 +261,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       console.log(`Created fallback idle animation with key: ${this.idleAnimKey}`);
     }
     
-    // 공격 애니메이션
+    // ê³µê²© ì ëë©ì´ì
     const attackFrames = typeFrames.filter(frame => frame.includes('attack'));
     console.log(`Attack frames:`, attackFrames);
     
@@ -278,63 +278,63 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       console.log(`Created attack animation with key: ${this.attackAnimKey}`);
     }
     
-    // 기본 애니메이션 재생
+    // ê¸°ë³¸ ì ëë©ì´ì ì¬ì
     if (this.scene.anims.exists(this.idleAnimKey)) {
       this.play(this.idleAnimKey);
       console.log(`Playing idle animation: ${this.idleAnimKey}`);
     }
   }
   
-  // 폴백 스프라이트 생성 (텍스처 로드 실패 시)
+  // í´ë°± ì¤íë¼ì´í¸ ìì± (íì¤ì² ë¡ë ì¤í¨ ì)
   createFallbackSprite() {
     const graphics = this.scene.make.graphics({ x: 0, y: 0 });
     
-    // 캐릭터 타입에 따라 다른 색상 사용
-    let color = 0x3498db; // 기본 파란색
+    // ìºë¦­í° íìì ë°ë¼ ë¤ë¥¸ ìì ì¬ì©
+    let color = 0x3498db; // ê¸°ë³¸ íëì
     
     switch (this.characterType) {
       case CharacterType.WARRIOR:
-        color = 0xe74c3c; // 빨간색
+        color = 0xe74c3c; // ë¹¨ê°ì
         break;
       case CharacterType.MAGE:
-        color = 0x9b59b6; // 보라색
+        color = 0x9b59b6; // ë³´ë¼ì
         break;
       case CharacterType.PRIEST:
-        color = 0xf1c40f; // 노란색
+        color = 0xf1c40f; // ë¸ëì
         break;
       case CharacterType.GHOST:
-        color = 0x1abc9c; // 청록색
+        color = 0x1abc9c; // ì²­ë¡ì
         break;
     }
     
-    // 원형 캐릭터 그리기
+    // ìí ìºë¦­í° ê·¸ë¦¬ê¸°
     graphics.fillStyle(color);
     graphics.fillCircle(16, 16, 14);
     
-    // 테두리 추가
+    // íëë¦¬ ì¶ê°
     graphics.lineStyle(2, 0xffffff, 1);
     graphics.strokeCircle(16, 16, 14);
     
-    // 텍스처 생성
+    // íì¤ì² ìì±
     const textureName = `player_${this.characterType}_fallback`;
     graphics.generateTexture(textureName, 32, 32);
     graphics.destroy();
     
-    // 생성된 텍스처 적용
+    // ìì±ë íì¤ì² ì ì©
     this.setTexture(textureName);
   }
   
-  // 캐릭터 타입에 따른 초기 능력치 설정
+  // ìºë¦­í° íìì ë°ë¥¸ ì´ê¸° ë¥ë ¥ì¹ ì¤ì 
   setupCharacterStats() {
     switch (this.characterType) {
       case CharacterType.WARRIOR:
-        // 전사: 높은 체력, 중간 속도
+        // ì ì¬: ëì ì²´ë ¥, ì¤ê° ìë
         this.health = 120;
         this.maxHealth = 120;
         this.speed = 200;
         break;
       case CharacterType.MAGE:
-        // 마법사: 낮은 체력, 중간 속도, 강력한 마법 공격
+        // ë§ë²ì¬: ë®ì ì²´ë ¥, ì¤ê° ìë, ê°ë ¥í ë§ë² ê³µê²©
         this.health = 80;
         this.maxHealth = 80;
         this.speed = 200;
@@ -342,36 +342,36 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       
 
       case CharacterType.PRIEST:
-        // 성직자: 중간 체력, 느린 속도, 회복 능력
+        // ì±ì§ì: ì¤ê° ì²´ë ¥, ëë¦° ìë, íë³µ ë¥ë ¥
         this.health = 100;
         this.maxHealth = 100;
         this.speed = 180;
         break;
       case CharacterType.GHOST:
-        // 유령: 낮은 체력, 빠른 속도, 회피 능력
+        // ì ë ¹: ë®ì ì²´ë ¥, ë¹ ë¥¸ ìë, íí¼ ë¥ë ¥
         this.health = 70;
         this.maxHealth = 70;
         this.speed = 250;
         break;
       case CharacterType.KNIGHT:
-        // 기사: 높은 체력, 느린 속도, 강한 방어력
+        // ê¸°ì¬: ëì ì²´ë ¥, ëë¦° ìë, ê°í ë°©ì´ë ¥
         this.health = 150;
         this.maxHealth = 150;
         this.speed = 180;
         break;
     }
     
-    // 초기 체력 UI 업데이트
+    // ì´ê¸° ì²´ë ¥ UI ìë°ì´í¸
     gameEvents.emit('health-changed', this.health);
   }
   
-  // 캐릭터 타입에 따른 초기 무기 설정
+  // ìºë¦­í° íìì ë°ë¥¸ ì´ê¸° ë¬´ê¸° ì¤ì 
   setupInitialWeapon() {
     this.weapons = [];
     
     switch (this.characterType) {
       case CharacterType.WARRIOR:
-        // 전사: 방패 무기
+        // ì ì¬: ë°©í¨ ë¬´ê¸°
         this.weapons.push({
           type: 'shield',
           level: 1,
@@ -380,7 +380,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         });
         break;
       case CharacterType.MAGE:
-        // 마법사: 화살 무기 (채찍에서 변경)
+        // ë§ë²ì¬: íì´ ë¬´ê¸° (ì±ì°ìì ë³ê²½)
         this.weapons.push({
           type: 'arrow',
           level: 1,
@@ -389,7 +389,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         });
         break;
       case CharacterType.PRIEST:
-        // 성직자: 채찍 무기 (약한 버전)
+        // ì±ì§ì: ì±ì° ë¬´ê¸° (ì½í ë²ì )
         this.weapons.push({
           type: 'whip',
           level: 1,
@@ -398,7 +398,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         });
         break;
       case CharacterType.GHOST:
-        // 유령: 칼 무기 (빠른 버전)
+        // ì ë ¹: ì¹¼ ë¬´ê¸° (ë¹ ë¥¸ ë²ì )
         this.weapons.push({
           type: 'knife',
           level: 1,
@@ -407,7 +407,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         });
         break;
       case CharacterType.KNIGHT:
-        // 기사: 검 무기
+        // ê¸°ì¬: ê² ë¬´ê¸°
         this.weapons.push({
           type: 'knife',
           level: 1,
@@ -416,7 +416,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         });
         break;
       default:
-        // 기본: 칼 무기
+        // ê¸°ë³¸: ì¹¼ ë¬´ê¸°
         this.weapons.push({
           type: 'knife',
           level: 1,
@@ -457,18 +457,18 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     
     this.setVelocity(vx * this.speed, vy * this.speed);
     
-    // 이동 방향 업데이트 (무기 발사 방향 계산용)
+    // ì´ë ë°©í¥ ìë°ì´í¸ (ë¬´ê¸° ë°ì¬ ë°©í¥ ê³ì°ì©)
     this.weaponManager.updatePlayerDirection(vx, vy);
     
-    // 방패 업데이트
+    // ë°©í¨ ìë°ì´í¸
     this.weaponManager.updateShields(delta);
     
-    // 폴백 스프라이트를 사용 중이면 애니메이션 업데이트 건너뛰기
+    // í´ë°± ì¤íë¼ì´í¸ë¥¼ ì¬ì© ì¤ì´ë©´ ì ëë©ì´ì ìë°ì´í¸ ê±´ëë°ê¸°
     if (this.usingFallbackSprite) return;
     
     // Update animation based on movement
     if (vx !== 0 || vy !== 0) {
-      // 이동 중
+      // ì´ë ì¤
       if (this.anims.currentAnim?.key !== this.walkAnimKey) {
         if (this.scene.anims.exists(this.walkAnimKey)) {
           console.log(`Playing walk animation: ${this.walkAnimKey}`);
@@ -478,7 +478,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         }
       }
     } else {
-      // 정지 상태
+      // ì ì§ ìí
       if (this.anims.currentAnim?.key !== this.idleAnimKey) {
         if (this.scene.anims.exists(this.idleAnimKey)) {
           console.log(`Playing idle animation: ${this.idleAnimKey}`);
@@ -491,13 +491,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   takeDamage(amount: number) {
-    // 무적 상태면 데미지를 받지 않음
+    // ë¬´ì  ìíë©´ ë°ë¯¸ì§ë¥¼ ë°ì§ ìì
     if (this.isInvincible) return;
     
     this.health = Math.max(0, this.health - amount);
     gameEvents.emit('health-changed', this.health);
     
-    // 데미지를 받으면 무적 상태로 전환
+    // ë°ë¯¸ì§ë¥¼ ë°ì¼ë©´ ë¬´ì  ìíë¡ ì í
     this.setInvincible();
     
     // Flash effect when taking damage
@@ -509,11 +509,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
-  // 무적 상태 설정 메서드
+  // ë¬´ì  ìí ì¤ì  ë©ìë
   setInvincible() {
     this.isInvincible = true;
     
-    // 무적 상태 시각적 표시 (깜빡임 효과)
+    // ë¬´ì  ìí ìê°ì  íì (ê¹ë¹¡ì í¨ê³¼)
     this.scene.tweens.add({
       targets: this,
       alpha: 0.6,
@@ -522,10 +522,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       repeat: 5
     });
     
-    // 무적 시간 후 상태 해제
+    // ë¬´ì  ìê° í ìí í´ì 
     this.scene.time.delayedCall(this.invincibilityDuration, () => {
       this.isInvincible = false;
-      this.setAlpha(1); // 알파값 복원
+      this.setAlpha(1); // ìíê° ë³µì
     });
   }
 
@@ -557,7 +557,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     // Every 3 levels, add a new weapon type
     if (this.level % 3 === 0) {
       if (this.level === 3) {
-        // 캐릭터 타입에 따라 다른 두 번째 무기 추가
+        // ìºë¦­í° íìì ë°ë¼ ë¤ë¥¸ ë ë²ì§¸ ë¬´ê¸° ì¶ê°
         switch (this.characterType) {
           case CharacterType.WARRIOR:
             this.weapons.push({
@@ -608,7 +608,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
             });
         }
       } else if (this.level === 6) {
-        // 모든 캐릭터에게 세 번째 무기 추가
+        // ëª¨ë  ìºë¦­í°ìê² ì¸ ë²ì§¸ ë¬´ê¸° ì¶ê°
         const missingWeaponTypes = ['knife', 'shield', 'whip', 'arrow'].filter(
           type => !this.weapons.some(weapon => weapon.type === type)
         );
@@ -648,7 +648,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       if (time - weapon.lastFired >= weapon.cooldown) {
         weapon.lastFired = time;
         
-        // 데이터 기반 무기 생성
+        // ë°ì´í° ê¸°ë° ë¬´ê¸° ìì±
         const newWeapon = this.weaponManager.createWeapon(weapon.type, weapon.level);
         
         if (newWeapon) {

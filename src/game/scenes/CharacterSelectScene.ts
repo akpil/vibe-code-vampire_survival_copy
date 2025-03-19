@@ -14,28 +14,28 @@ export class CharacterSelectScene extends Phaser.Scene {
   }
   
   init(data: any) {
-    // 이전 씬에서 전달받은 챕터 정보
+    // Get chapter info from previous scene
     this.selectedChapter = data.chapter || 1;
   }
   
   create() {
-    // 씬 변경 이벤트 발생
+    // Emit scene change event
     gameEvents.emit('scene-changed', SceneKeys.CHARACTER_SELECT);
     
     console.log('CharacterSelectScene: create started');
     
-    // 텍스처 로드 확인
+    // Check texture loading
     this.checkTextures();
     
-    // 배경 설정
+    // Set background
     const bg = this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0x000033);
     bg.setOrigin(0, 0);
     
-    // 타이틀 텍스트
+    // Title text
     const titleText = this.add.text(
       this.cameras.main.centerX,
       this.cameras.main.height * 0.15,
-      '캐릭터 선택',
+      'Select Character',
       {
         fontFamily: 'Arial',
         fontSize: '48px',
@@ -46,11 +46,11 @@ export class CharacterSelectScene extends Phaser.Scene {
     );
     titleText.setOrigin(0.5);
     
-    // 선택한 챕터 표시
+    // Selected chapter display
     const chapterText = this.add.text(
       this.cameras.main.centerX,
       this.cameras.main.height * 0.25,
-      `선택한 챕터: ${this.selectedChapter}`,
+      `Selected Chapter: ${this.selectedChapter}`,
       {
         fontFamily: 'Arial',
         fontSize: '24px',
@@ -59,42 +59,42 @@ export class CharacterSelectScene extends Phaser.Scene {
     );
     chapterText.setOrigin(0.5);
     
-    // 캐릭터 프레임 정보 가져오기
+    // Get character frame info
     this.prepareCharacterFrames();
     
-    // 캐릭터 카드 생성
+    // Create character cards
     this.createCharacterCard(
       this.cameras.main.centerX - 250,
       this.cameras.main.centerY + 30,
       CharacterType.WARRIOR,
-      '전사',
-      '근접 공격 전문가',
-      '체력: 높음\n공격력: 중간\n속도: 낮음'
+      'Warrior',
+      'Melee Combat Specialist',
+      'Health: High\nAttack: Medium\nSpeed: Low'
     );
     
     this.createCharacterCard(
       this.cameras.main.centerX,
       this.cameras.main.centerY + 30,
       CharacterType.MAGE,
-      '마법사',
-      '원거리 공격 전문가',
-      '체력: 낮음\n공격력: 높음\n속도: 중간'
+      'Mage',
+      'Ranged Attack Specialist',
+      'Health: Low\nAttack: High\nSpeed: Medium'
     );
     
-    // 성직자 대신 실제 사용되는 스프라이트에 맞게 이름과 설명 변경
+    // Adjust priest title and description based on actual sprite used
     const priestAlternative = this.alternativeSprites[CharacterType.PRIEST];
-    let priestTitle = '성직자';
-    let priestDesc = '회복 능력 전문가';
-    let priestStats = '체력: 중간\n공격력: 중간\n속도: 중간';
+    let priestTitle = 'Priest';
+    let priestDesc = 'Healing Specialist';
+    let priestStats = 'Health: Medium\nAttack: Medium\nSpeed: Medium';
     
     if (priestAlternative === 'monk') {
-      priestTitle = '수도사';
-      priestDesc = '균형 잡힌 전투 능력';
-      priestStats = '체력: 중간\n공격력: 중간\n속도: 중간';
+      priestTitle = 'Monk';
+      priestDesc = 'Balanced Combat Skills';
+      priestStats = 'Health: Medium\nAttack: Medium\nSpeed: Medium';
     } else if (priestAlternative === 'knight') {
-      priestTitle = '기사';
-      priestDesc = '방어 능력 전문가';
-      priestStats = '체력: 높음\n공격력: 중간\n속도: 낮음';
+      priestTitle = 'Knight';
+      priestDesc = 'Defense Specialist';
+      priestStats = 'Health: High\nAttack: Medium\nSpeed: Low';
     }
     
     this.createCharacterCard(
@@ -106,13 +106,13 @@ export class CharacterSelectScene extends Phaser.Scene {
       priestStats
     );
     
-    // 뒤로 가기 버튼 - ButtonFactory 사용
+    // Back button - using ButtonFactory
     ButtonFactory.createButton(
       this,
       100,
       this.cameras.main.height - 50,
       'btn-red',
-      '뒤로',
+      'Back',
       () => {
         this.scene.start(SceneKeys.CHAPTER_SELECT);
       },
@@ -123,7 +123,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     console.log('CharacterSelectScene: create completed');
   }
   
-  // 텍스처 로드 확인
+  // Check texture loading
   checkTextures() {
     console.log('CharacterSelectScene - Checking textures:');
     console.log('- frame:', this.textures.exists('frame'));
@@ -131,7 +131,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     console.log('- btn-blue:', this.textures.exists('btn-blue'));
     console.log('- characters:', this.textures.exists('characters'));
     
-    // 텍스처가 없는 경우 폴백 생성
+    // Create fallback textures if needed
     if (!this.textures.exists('frame')) {
       this.createFallbackFrame();
     }
@@ -145,57 +145,57 @@ export class CharacterSelectScene extends Phaser.Scene {
     }
   }
   
-  // 폴백 프레임 생성
+  // Create fallback frame
   createFallbackFrame() {
     console.log('Creating fallback frame');
     const graphics = this.make.graphics({ x: 0, y: 0 });
     
-    // 프레임 배경
+    // Frame background
     graphics.fillStyle(0x333333, 0.8);
     graphics.fillRoundedRect(0, 0, 200, 300, 10);
     
-    // 프레임 테두리
+    // Frame border
     graphics.lineStyle(4, 0x666666, 1);
     graphics.strokeRoundedRect(0, 0, 200, 300, 10);
     
-    // 텍스처 생성
+    // Generate texture
     graphics.generateTexture('frame', 200, 300);
     graphics.destroy();
   }
   
-  // 폴백 버튼 생성
+  // Create fallback button
   createFallbackButton(key: string, color: number) {
     console.log(`Creating fallback button: ${key}`);
     const graphics = this.make.graphics({ x: 0, y: 0 });
     
-    // 버튼 배경
+    // Button background
     graphics.fillStyle(color);
     graphics.fillRoundedRect(0, 0, 180, 60, 10);
     
-    // 버튼 테두리
+    // Button border
     graphics.lineStyle(2, 0xffffff, 1);
     graphics.strokeRoundedRect(0, 0, 180, 60, 10);
     
-    // 텍스처 생성
+    // Generate texture
     graphics.generateTexture(key, 180, 60);
     graphics.destroy();
   }
   
-  // 캐릭터 프레임 정보 준비
+  // Prepare character frame info
   prepareCharacterFrames() {
     if (this.textures.exists('characters')) {
       const frames = this.textures.get('characters').getFrameNames();
       
-      // 각 캐릭터 타입별로 프레임 필터링
+      // Filter frames for each character type
       Object.values(CharacterType).forEach(type => {
-        // 기본 프레임 설정
+        // Set default frames
         const typePrefix = `cha_${type}_`;
         this.characterFrames[type] = frames.filter(frame => frame.includes(typePrefix));
         this.alternativeSprites[type] = null;
         
-        // 성직자 캐릭터에 대한 대체 스프라이트 확인
+        // Check for alternative sprites for priest character
         if (type === CharacterType.PRIEST && this.characterFrames[type].length === 0) {
-          // 'monk' 스프라이트를 성직자 캐릭터로 사용
+          // Try using 'monk' sprite for priest character
           const monkFrames = frames.filter(frame => frame.includes('cha_monk_'));
           if (monkFrames.length > 0) {
             this.characterFrames[type] = monkFrames;
@@ -204,7 +204,7 @@ export class CharacterSelectScene extends Phaser.Scene {
             return;
           }
           
-          // 'monk'가 없으면 'knight' 스프라이트 시도
+          // If 'monk' not available, try 'knight' sprite
           const knightFrames = frames.filter(frame => frame.includes('cha_knight_'));
           if (knightFrames.length > 0) {
             this.characterFrames[type] = knightFrames;
@@ -223,20 +223,20 @@ export class CharacterSelectScene extends Phaser.Scene {
   }
   
   createCharacterCard(x: number, y: number, characterType: CharacterType, title: string, description: string, stats: string) {
-    // 프레임 배경
+    // Frame background
     const frame = this.add.image(x, y, 'frame');
     frame.setDisplaySize(200, 300);
     frame.setTint(0x888888);
     
-    // 캐릭터 프리뷰 이미지 (스프라이트 아틀라스에서)
+    // Character preview image (from sprite atlas)
     let characterImage;
     
     if (this.characterFrames[characterType] && this.characterFrames[characterType].length > 0) {
-      // 스프라이트 아틀라스에서 첫 번째 프레임 사용
+      // Use first frame from sprite atlas
       characterImage = this.add.image(x, y - 70, 'characters', this.characterFrames[characterType][0]);
       characterImage.setDisplaySize(160, 160);
       
-      // 애니메이션 설정
+      // Set up animation
       const animKey = `${characterType}_select`;
       
       if (!this.anims.exists(animKey) && this.characterFrames[characterType].length >= 2) {
@@ -249,18 +249,18 @@ export class CharacterSelectScene extends Phaser.Scene {
           repeat: -1
         });
         
-        // 스프라이트로 변환하여 애니메이션 재생
+        // Convert to sprite and play animation
         characterImage.destroy();
         characterImage = this.add.sprite(x, y - 70, 'characters', this.characterFrames[characterType][0]);
         characterImage.setDisplaySize(160, 160);
         characterImage.play(animKey);
       }
     } else {
-      // 폴백: 색상 있는 사각형으로 표시
+      // Fallback: colored rectangle
       characterImage = this.add.rectangle(x, y - 70, 160, 160, this.getColorForCharacter(characterType));
     }
     
-    // 캐릭터 이름
+    // Character name
     const titleText = this.add.text(
       x,
       y + 30,
@@ -275,7 +275,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     );
     titleText.setOrigin(0.5);
     
-    // 캐릭터 설명
+    // Character description
     const descText = this.add.text(
       x,
       y + 60,
@@ -289,7 +289,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     );
     descText.setOrigin(0.5);
     
-    // 캐릭터 스탯
+    // Character stats
     const statsText = this.add.text(
       x,
       y + 100,
@@ -303,15 +303,15 @@ export class CharacterSelectScene extends Phaser.Scene {
     );
     statsText.setOrigin(0.5);
     
-    // 선택 버튼
+    // Select button
     const selectButton = ButtonFactory.createButton(
       this,
       x,
       y + 140,
       'btn-blue',
-      '선택',
+      'Select',
       () => {
-        // 게임 시작 - 선택한 챕터와 캐릭터 정보 전달
+        // Start game - pass selected chapter and character info
         this.scene.start(SceneKeys.MAIN, { 
           chapter: this.selectedChapter,
           character: characterType
@@ -322,17 +322,17 @@ export class CharacterSelectScene extends Phaser.Scene {
       '16px'
     );
     
-    // 전체 카드를 인터랙티브하게 만들기
+    // Make the entire card interactive
     frame.setInteractive({ useHandCursor: true });
     frame.on('pointerdown', () => {
-      // 게임 시작 - 선택한 챕터와 캐릭터 정보 전달
+      // Start game - pass selected chapter and character info
       this.scene.start(SceneKeys.MAIN, { 
         chapter: this.selectedChapter,
         character: characterType
       });
     });
     
-    // 호버 효과
+    // Hover effects
     frame.on('pointerover', () => {
       frame.setTint(0xaaaaaa);
     });
@@ -344,7 +344,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     return frame;
   }
   
-  // 캐릭터 타입에 따른 색상 반환 (폴백용)
+  // Get color for character type (for fallback)
   getColorForCharacter(type: CharacterType): number {
     switch (type) {
       case CharacterType.WARRIOR:

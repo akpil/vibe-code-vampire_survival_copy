@@ -38,10 +38,10 @@ export class WeaponManager {
   private activeShields: Weapon[] = [];
   private shieldBaseAngle: number = 0;
   private lastDirectionX: number = 0;
-  private lastDirectionY: number = -1; // 기본값은 위쪽
+  private lastDirectionY: number = -1; // ê¸°ë³¸ê°ì ììª½
   private movementDirectionX: number = 0;
-  private movementDirectionY: number = -1; // 기본값은 위쪽
-  private facingDirection: 'left' | 'right' = 'right'; // 기본값은 오른쪽
+  private movementDirectionY: number = -1; // ê¸°ë³¸ê°ì ììª½
+  private facingDirection: 'left' | 'right' = 'right'; // ê¸°ë³¸ê°ì ì¤ë¥¸ìª½
   private weaponsData: Record<string, WeaponConfig> = {};
 
   constructor(scene: Phaser.Scene, weaponsGroup: Phaser.GameObjects.Group, player: Phaser.Physics.Arcade.Sprite) {
@@ -49,13 +49,13 @@ export class WeaponManager {
     this.weaponsGroup = weaponsGroup;
     this.player = player;
     
-    // 무기 데이터 로드
+    // ë¬´ê¸° ë°ì´í° ë¡ë
     this.loadWeaponsData();
   }
   
-  // 무기 데이터 로드 메서드
+  // ë¬´ê¸° ë°ì´í° ë¡ë ë©ìë
   private loadWeaponsData() {
-    // 씬에서 로드된 JSON 데이터 가져오기
+    // ì¬ìì ë¡ëë JSON ë°ì´í° ê°ì ¸ì¤ê¸°
     const weaponsData = this.scene.cache.json.get('weapons-data');
     
     if (weaponsData) {
@@ -63,17 +63,17 @@ export class WeaponManager {
       console.log('Weapons data loaded successfully:', Object.keys(this.weaponsData));
     } else {
       console.error('Failed to load weapons data from cache');
-      // 기본 무기 데이터 설정 (폴백)
+      // ê¸°ë³¸ ë¬´ê¸° ë°ì´í° ì¤ì  (í´ë°±)
       this.setupDefaultWeaponsData();
     }
   }
   
-  // 기본 무기 데이터 설정 (데이터 로드 실패 시)
+  // ê¸°ë³¸ ë¬´ê¸° ë°ì´í° ì¤ì  (ë°ì´í° ë¡ë ì¤í¨ ì)
   private setupDefaultWeaponsData() {
     this.weaponsData = {
       "knife": {
         "type": "projectile",
-        "name": "칼",
+        "name": "ì¹¼",
         "texture": "knife",
         "damage": 20,
         "damagePerLevel": 5,
@@ -92,7 +92,7 @@ export class WeaponManager {
       },
       "shield": {
         "type": "orbit",
-        "name": "방패",
+        "name": "ë°©í¨",
         "texture": "shield",
         "damage": 30,
         "damagePerLevel": 8,
@@ -109,7 +109,7 @@ export class WeaponManager {
       },
       "whip": {
         "type": "projectile",
-        "name": "채찍",
+        "name": "ì±ì°",
         "texture": "whip",
         "damage": 25,
         "damagePerLevel": 7,
@@ -127,7 +127,7 @@ export class WeaponManager {
       },
       "arrow": {
         "type": "projectile",
-        "name": "화살",
+        "name": "íì´",
         "texture": "arrow",
         "damage": 15,
         "damagePerLevel": 5,
@@ -150,7 +150,7 @@ export class WeaponManager {
   }
 
   public updatePlayerDirection(directionX: number, directionY: number): void {
-    // 이동 방향 저장 (0이 아닌 경우에만 업데이트)
+    // ì´ë ë°©í¥ ì ì¥ (0ì´ ìë ê²½ì°ìë§ ìë°ì´í¸)
     if (directionX !== 0 || directionY !== 0) {
       this.movementDirectionX = directionX;
       this.movementDirectionY = directionY;
@@ -158,29 +158,29 @@ export class WeaponManager {
       this.lastDirectionY = directionY;
     }
     
-    // 캐릭터가 바라보는 방향 업데이트 (좌우 방향만)
+    // ìºë¦­í°ê° ë°ë¼ë³´ë ë°©í¥ ìë°ì´í¸ (ì¢ì° ë°©í¥ë§)
     if (directionX < 0) {
       this.facingDirection = 'left';
     } else if (directionX > 0) {
       this.facingDirection = 'right';
     }
-    // directionX가 0인 경우 facingDirection은 변경하지 않음 (이전 방향 유지)
+    // directionXê° 0ì¸ ê²½ì° facingDirectionì ë³ê²½íì§ ìì (ì´ì  ë°©í¥ ì ì§)
   }
 
   public updateShields(delta: number): void {
-    // 활성화된 방패 무기 확인 및 정리 - 비활성 방패만 제거
+    // íì±íë ë°©í¨ ë¬´ê¸° íì¸ ë° ì ë¦¬ - ë¹íì± ë°©í¨ë§ ì ê±°
     this.activeShields = this.activeShields.filter(shield => shield.active);
     
-    // 방패 각도 업데이트 - 기준 각도만 회전시키고 각 방패의 상대적 위치는 유지
+    // ë°©í¨ ê°ë ìë°ì´í¸ - ê¸°ì¤ ê°ëë§ íì ìí¤ê³  ê° ë°©í¨ì ìëì  ìì¹ë ì ì§
     if (this.activeShields.length > 0) {
-      // 기준 각도 업데이트 (회전 속도 증가)
+      // ê¸°ì¤ ê°ë ìë°ì´í¸ (íì  ìë ì¦ê°)
       this.shieldBaseAngle += 0.03;
       
-      // 각 방패의 각도 업데이트
+      // ê° ë°©í¨ì ê°ë ìë°ì´í¸
       const angleStep = (Math.PI * 2) / this.activeShields.length;
       
       this.activeShields.forEach((shield, index) => {
-        // 각 방패의 상대적 위치 계산 (기준 각도 + 인덱스별 오프셋)
+        // ê° ë°©í¨ì ìëì  ìì¹ ê³ì° (ê¸°ì¤ ê°ë + ì¸ë±ì¤ë³ ì¤íì)
         const shieldAngle = this.shieldBaseAngle + (index * angleStep);
         shield.orbitAngle = shieldAngle;
       });
@@ -194,16 +194,16 @@ export class WeaponManager {
       return null;
     }
 
-    // 무기 데이터 계산
+    // ë¬´ê¸° ë°ì´í° ê³ì°
     const damage = config.damage + (level - 1) * config.damagePerLevel;
     
-    // 타겟팅 방식에 따른 각도 계산
+    // íê²í ë°©ìì ë°ë¥¸ ê°ë ê³ì°
     let angle = 0;
     let target = null;
     
     switch (config.targeting) {
       case 'nearest':
-        // 가장 가까운 적 찾기
+        // ê°ì¥ ê°ê¹ì´ ì  ì°¾ê¸°
         const enemies = this.scene.children.getChildren()
           .filter(child => child.constructor.name === 'Enemy')
           .sort((a: any, b: any) => {
@@ -221,36 +221,36 @@ export class WeaponManager {
             (target as any).y
           );
         } else {
-          // 적이 없으면 마지막 방향 또는 위쪽으로
+          // ì ì´ ìì¼ë©´ ë§ì§ë§ ë°©í¥ ëë ììª½ì¼ë¡
           angle = Math.atan2(this.lastDirectionY, this.lastDirectionX);
         }
         break;
         
       case 'facing':
-        // 캐릭터가 바라보는 방향 (좌/우)
+        // ìºë¦­í°ê° ë°ë¼ë³´ë ë°©í¥ (ì¢/ì°)
         if (this.facingDirection === 'left') {
-          angle = Math.PI; // 왼쪽 (180도)
+          angle = Math.PI; // ì¼ìª½ (180ë)
         } else {
-          angle = 0; // 오른쪽 (0도)
+          angle = 0; // ì¤ë¥¸ìª½ (0ë)
         }
         break;
         
       case 'movement':
-        // 캐릭터의 이동 벡터 방향
+        // ìºë¦­í°ì ì´ë ë²¡í° ë°©í¥
         angle = Math.atan2(this.movementDirectionY, this.movementDirectionX);
         break;
         
       case 'forward':
-        // 캐릭터가 바라보는 방향 (상하좌우)
+        // ìºë¦­í°ê° ë°ë¼ë³´ë ë°©í¥ (ìíì¢ì°)
         angle = Math.atan2(this.lastDirectionY, this.lastDirectionX);
         break;
         
       default:
-        // 기본값은 무작위 방향
+        // ê¸°ë³¸ê°ì ë¬´ìì ë°©í¥
         angle = Math.random() * Math.PI * 2;
     }
 
-    // 무기 타입에 따른 생성
+    // ë¬´ê¸° íìì ë°ë¥¸ ìì±
     if (config.type === 'orbit') {
       return this.createOrbitWeapon(config, level, damage, angle);
     } else {
@@ -278,13 +278,13 @@ export class WeaponManager {
       null
     );
     
-    // 추가 설정
+    // ì¶ê° ì¤ì 
     if (config.scale) weapon.setScale(config.scale);
-    // 회전 설정은 이제 Weapon 클래스에서 처리 (knife는 발사 방향에 45도 추가)
+    // íì  ì¤ì ì ì´ì  Weapon í´ëì¤ìì ì²ë¦¬ (knifeë ë°ì¬ ë°©í¥ì 45ë ì¶ê°)
     if (config.tint) weapon.setTint(parseInt(config.tint));
     if (config.body) weapon.body.setSize(config.body.width, config.body.height);
     
-    // 애니메이션 설정
+    // ì ëë©ì´ì ì¤ì 
     if (config.animation && weapon.texture.frameTotal > 1) {
       weapon.anims.create({
         key: `${config.texture}-anim`,
@@ -299,7 +299,7 @@ export class WeaponManager {
       weapon.play(`${config.texture}-anim`);
     }
     
-    // 수명 설정
+    // ìëª ì¤ì 
     if (config.lifespan) {
       this.scene.time.delayedCall(config.lifespan, () => {
         if (weapon.active) {
@@ -317,30 +317,30 @@ export class WeaponManager {
     damage: number, 
     angle: number
   ): Weapon | null {
-    // 방패 개수 계산 (레벨에 따라 증가)
+    // ë°©í¨ ê°ì ê³ì° (ë ë²¨ì ë°ë¼ ì¦ê°)
     const count = Math.floor(config.baseCount! + Math.floor(level / 2) * config.countPerLevel!);
     
-    // 현재 활성화된 방패 개수 확인
+    // íì¬ íì±íë ë°©í¨ ê°ì íì¸
     if (this.activeShields.length >= count) {
-      // 이미 충분한 방패가 있으면 새로 생성하지 않음
+      // ì´ë¯¸ ì¶©ë¶í ë°©í¨ê° ìì¼ë©´ ìë¡ ìì±íì§ ìì
       return null;
     }
     
-    // 필요한 방패만 추가 생성
+    // íìí ë°©í¨ë§ ì¶ê° ìì±
     const newShieldsCount = count - this.activeShields.length;
     
-    // 방패 간 균등한 각도 분배를 위한 계산
+    // ë°©í¨ ê° ê· ë±í ê°ë ë¶ë°°ë¥¼ ìí ê³ì°
     const totalShields = this.activeShields.length + newShieldsCount;
     const angleStep = (Math.PI * 2) / totalShields;
     
-    // 마지막으로 생성된 방패 반환
+    // ë§ì§ë§ì¼ë¡ ìì±ë ë°©í¨ ë°í
     let lastShield: Weapon | null = null;
     
     for (let i = 0; i < newShieldsCount; i++) {
-      // 새 방패의 인덱스 계산
+      // ì ë°©í¨ì ì¸ë±ì¤ ê³ì°
       const shieldIndex = this.activeShields.length + i;
       
-      // 방패의 초기 각도 설정 (기준 각도 + 인덱스별 오프셋)
+      // ë°©í¨ì ì´ê¸° ê°ë ì¤ì  (ê¸°ì¤ ê°ë + ì¸ë±ì¤ë³ ì¤íì)
       const shieldAngle = this.shieldBaseAngle + (shieldIndex * angleStep);
       
       const shield = new Weapon(
@@ -356,13 +356,13 @@ export class WeaponManager {
         this.player
       );
       
-      // 방패 회전 속도 설정 - 레벨에 따라 증가
+      // ë°©í¨ íì  ìë ì¤ì  - ë ë²¨ì ë°ë¼ ì¦ê°
       shield.orbitSpeed = config.orbitSpeed! + (level * config.orbitSpeedPerLevel!);
       
-      // 크기 설정
+      // í¬ê¸° ì¤ì 
       if (config.scale) shield.setScale(config.scale);
       
-      // 활성 방패 배열에 추가
+      // íì± ë°©í¨ ë°°ì´ì ì¶ê°
       this.activeShields.push(shield);
       lastShield = shield;
     }

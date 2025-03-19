@@ -1,7 +1,7 @@
 {
   "knife": {
     "type": "projectile",
-    "name": "칼",
+    "name": "Knife",
     "texture": "knife",
     "damage": 20,
     "damagePerLevel": 5,
@@ -20,7 +20,7 @@
   },
   "shield": {
     "type": "orbit",
-    "name": "방패",
+    "name": "Shield",
     "texture": "shield",
     "damage": 30,
     "damagePerLevel": 8,
@@ -37,7 +37,7 @@
   },
   "whip": {
     "type": "projectile",
-    "name": "채찍",
+    "name": "Whip",
     "texture": "whip",
     "damage": 25,
     "damagePerLevel": 7,
@@ -55,7 +55,7 @@
   },
   "arrow": {
     "type": "projectile",
-    "name": "화살",
+    "name": "Arrow",
     "texture": "arrow",
     "damage": 15,
     "damagePerLevel": 5,

@@ -24,7 +24,7 @@ body {
   overflow: hidden;
 }
 
-/* 게임 컨테이너 스타일 */
+/* ê²ì ì»¨íì´ë ì¤íì¼ */
 .game-container {
   position: relative;
   width: 100vw;
@@ -37,7 +37,7 @@ body {
   height: 100%;
 }
 
-/* 게임 UI 스타일 */
+/* ê²ì UI ì¤íì¼ */
 .game-ui {
   position: absolute;
   top: 0;
@@ -49,7 +49,7 @@ body {
   font-family: 'Noto Sans KR', sans-serif;
 }
 
-/* 상태 표시 컨테이너 */
+/* ìí íì ì»¨íì´ë */
 .stats-container {
   position: absolute;
   top: 20px;
@@ -75,7 +75,7 @@ body {
   color: white;
 }
 
-/* 체력 바 */
+/* ì²´ë ¥ ë° */
 .health-bar {
   width: 100%;
   height: 15px;
@@ -90,7 +90,7 @@ body {
   transition: width 0.3s ease;
 }
 
-/* 경험치 바 */
+/* ê²½íì¹ ë° */
 .xp-bar {
   width: 100%;
   height: 15px;
@@ -105,7 +105,7 @@ body {
   transition: width 0.3s ease;
 }
 
-/* 게임 오버 화면 */
+/* ê²ì ì¤ë² íë©´ */
 .game-over-container {
   position: absolute;
   top: 0;
