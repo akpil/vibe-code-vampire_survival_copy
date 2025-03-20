@@ -47,21 +47,41 @@ export class Weapon extends Phaser.Physics.Arcade.Sprite {
         this.body.setOffset(4, 4);
         break;
       case 'whip':
-        this.setScale(0.8);
-        this.setTint(0x00ffff);
-        // 마법 무기는 방향 조정
-        this.setRotation(angle - Math.PI/2);
+        this.setScale(1.2);
         
-        // 프레임 인덱스 설정 (whip 스프라이트시트의 경우)
+        // Fix whip orientation - make it appear in front of the character
+        // Set the anchor point to the handle end of the whip
+        this.setOrigin(0, 0.5);
+        
+        // Adjust rotation to match the direction angle
+        this.setRotation(angle);
+        
+        // Set appropriate body size for collision
+        this.body.setSize(60, 20);
+        this.body.setOffset(5, 4);
+        
+        // Create whip animation if spritesheet is available
         if (this.texture.frameTotal > 1) {
           this.anims.create({
             key: 'whip-anim',
             frames: this.anims.generateFrameNumbers(type, { start: 0, end: this.texture.frameTotal - 1 }),
-            frameRate: 10,
-            repeat: -1
+            frameRate: 15,
+            repeat: 0
           });
           
           this.play('whip-anim');
+          
+          // Auto-destroy after animation completes
+          this.on('animationcomplete', () => {
+            this.destroy();
+          });
+        } else {
+          // If no animation frames, set a timer to destroy
+          scene.time.delayedCall(300, () => {
+            if (this.active) {
+              this.destroy();
+            }
+          });
         }
         break;
       case 'arrow':
@@ -80,7 +100,7 @@ export class Weapon extends Phaser.Physics.Arcade.Sprite {
       this.setVelocity(vx, vy);
       
       // 무기가 일정 시간 후 자동 파괴되도록 설정 (궤도 무기 제외)
-      if (destroyOnHit) {
+      if (destroyOnHit && type !== 'whip') { // Skip for whip as it has its own destruction logic
         scene.time.delayedCall(2000, () => {
           if (this.active) {
             this.destroy();

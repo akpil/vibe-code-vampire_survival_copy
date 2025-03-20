@@ -7,6 +7,7 @@ import { XPGem } from '../entities/XPGem';
 import { CharacterType } from '../types/CharacterType';
 import { SceneKeys } from '../types/SceneKeys';
 import { ButtonFactory } from '../utils/ButtonFactory';
+import Assets from '../../assets.json';
 
 export class MainScene extends Phaser.Scene {
   player: Player;
@@ -47,6 +48,16 @@ export class MainScene extends Phaser.Scene {
   preload() {
     // 무기 데이터 로드 - 경로 수정
     this.load.json('weapons-data', 'assets/data/weapons.json');
+    
+    // Load whip spritesheet from assets.json
+    if (Assets.weapons && Assets.weapons.whip) {
+      this.load.spritesheet('whip', Assets.weapons.whip.url, {
+        frameWidth: 65,  // Width of each frame in the spritesheet
+        frameHeight: 27  // Height of each frame in the spritesheet
+      });
+    } else {
+      console.error('Whip asset not found in assets.json');
+    }
   }
 
   create() {

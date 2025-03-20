@@ -1,0 +1,12 @@
+{
+  "weapons": {
+    "whip": {
+      "url": "https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/effectSheet/whip.png",
+      "description": "Whip ability animation spritesheet containing 4 sequential frames for melee attack effect"
+    },
+    "characters": {
+      "url": "https://agent8-games.verse8.io/assets/2D/vampire_survival_riped_asset/cha_sprite.png",
+      "description": "Main character sprite atlas image containing animation frames for all character types"
+    }
+  }
+}

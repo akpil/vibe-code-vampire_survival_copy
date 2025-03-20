@@ -9,6 +9,7 @@ export class WeaponManager {
   private shields: Weapon[] = [];
   private playerDirection: { x: number, y: number } = { x: 1, y: 0 };
   private shieldAngles: number[] = [];
+  private playerFacingLeft: boolean = false;
   
   constructor(scene: Phaser.Scene, weaponsGroup: Phaser.GameObjects.Group, player: Phaser.GameObjects.GameObject) {
     this.scene = scene;
@@ -20,6 +21,12 @@ export class WeaponManager {
   updatePlayerDirection(x: number, y: number) {
     if (x !== 0 || y !== 0) {
       this.playerDirection = { x, y };
+      // Update player facing direction
+      if (x < 0) {
+        this.playerFacingLeft = true;
+      } else if (x > 0) {
+        this.playerFacingLeft = false;
+      }
     }
   }
   
@@ -207,19 +214,33 @@ export class WeaponManager {
   
   // 채찍 생성
   private createWhip(playerSprite: Phaser.Physics.Arcade.Sprite, weaponData: any): Weapon {
-    // 플레이어 방향으로 발사
+    // Get the player's facing direction
     const angle = this.getDirectionAngle();
     
-    return new Weapon(
+    // Calculate position offset based on player's direction
+    // This ensures the whip appears in front of the character
+    const offsetDistance = 30; // Distance from player center
+    const offsetX = Math.cos(angle) * offsetDistance;
+    const offsetY = Math.sin(angle) * offsetDistance;
+    
+    // Create the whip at the offset position
+    const whip = new Weapon(
       this.scene,
-      playerSprite.x,
-      playerSprite.y,
+      playerSprite.x + offsetX,
+      playerSprite.y + offsetY,
       'whip',
       weaponData.damage,
       angle,
-      weaponData.speed,
-      weaponData.destroyOnHit
+      0, // Whip doesn't move
+      true
     );
+    
+    // Flip the whip if player is facing left
+    if (this.playerFacingLeft) {
+      whip.setFlipX(true);
+    }
+    
+    return whip;
   }
   
   // 화살 생성
